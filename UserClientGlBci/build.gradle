@@ -1,6 +1,7 @@
 
 plugins {
     id 'java'
+    id 'jacoco'
     id 'org.springframework.boot' version '2.5.14'
     id 'io.spring.dependency-management' version'1.0.11.RELEASE'
 }
@@ -33,7 +34,7 @@ dependencies {
 }
 
 tasks.named('test') {
-
+    finalizedBy jacocoTestReport
 }
 
 // This section causes useful test output to go to the terminal.
@@ -49,5 +50,7 @@ test {
 
         // Change to `true` for more verbose test output
         showStandardStreams = true
+
     }
+
 }

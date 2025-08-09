@@ -1,8 +1,16 @@
+CREATE TABLE users(
+    id UUID PRIMARY KEY DEFAULT RANDOM_UUID(),
+    name VARCHAR(255) NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
 
---CREATE TABLE users(
-    --id UUID PRIMARY KEY DEFAULT RANDOMUUID(),
-    --name VARCHAR(255),
-    --email VARCHAR(255) NOT NULL UNIQUE,
-    --password VARCHAR(255) NOT NULL,
-    --phones CLOB
---)
+CREATE TABLE phones(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id UUID NOT NULL,
+    number BIGINT NULL,
+    citycode INT NULL,
+    contrycode VARCHAR(10)NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
