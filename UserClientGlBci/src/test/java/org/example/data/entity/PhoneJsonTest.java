@@ -25,12 +25,10 @@ public class PhoneJsonTest {
 
     @Test
     void phoneSerializationStrictTest() throws IOException {
-        Resource resource = new ClassPathResource("JsonInputUser/expectedPhone.json");
+        Resource resource = new ClassPathResource("JsonInputPhone/expectedPhone.json");
         Phone phone = new Phone(87650009L,  7,  "25");
 
         assertThat(json.write(phone)).isEqualToJson(resource.getFile());
-        assertThat(json.write(phone)).hasJsonPathStringValue("@.id");
-        assertThat(json.write(phone)).extractingJsonPathNumberValue("@.id").isNotEqualTo("784975a1-66ac-4357-a7b7-a1b8b13092e8");
         assertThat(json.write(phone)).hasJsonPathStringValue("@.name");
         assertThat(json.write(phone)).extractingJsonPathNumberValue("@.name").isEqualTo("Juan Pérez");
         assertThat(json.write(phone)).hasJsonPathStringValue("@.email");

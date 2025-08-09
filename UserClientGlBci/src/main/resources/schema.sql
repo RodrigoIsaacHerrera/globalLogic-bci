@@ -7,10 +7,10 @@ CREATE TABLE users(
 
 CREATE TABLE phones(
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id UUID NOT NULL,
+    userId UUID NOT NULL,
     number BIGINT NULL,
     citycode INT NULL,
-    contrycode VARCHAR(10)NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    countrycode VARCHAR(10)NULL,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 

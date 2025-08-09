@@ -15,8 +15,6 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @org.hibernate.annotations.GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
@@ -36,6 +34,7 @@ public class User {
     public User() {}
 
     public User(String name, String email, String password) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.email = email;
         this.password = password;
