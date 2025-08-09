@@ -18,7 +18,7 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = true)
+    @Column(name = "name")
     private String name;
 
     @Column(name = "email", nullable = false, unique = true)
@@ -26,10 +26,6 @@ public class User {
 
     @Column(name = "password", nullable = false)
     private String password;
-
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Phone> phones = new ArrayList<>();
 
     public User() {}
 

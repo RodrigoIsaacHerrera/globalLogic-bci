@@ -10,7 +10,7 @@ CREATE TABLE phones(
     userId UUID NOT NULL,
     number BIGINT NULL,
     citycode INT NULL,
-    countrycode VARCHAR(10)NULL,
+    countrycode VARCHAR(2) NULL,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 

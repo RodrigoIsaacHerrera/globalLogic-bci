@@ -20,9 +20,7 @@ public class UserJsonTest {
     @Test
     void userSerializationTest() throws IOException {
         Resource resource = new ClassPathResource("JsonInputUser/expectedUser.json");
-        User user = new User("Juan Pérez",
-                "juan.perez@example.com",
-                "password123");
+        User user = new User("Juan Pérez", "juan.perez@example.com", "password123");
         assertThat(json.write(user)).isNotEqualToJson(resource.getFile());
     }
 

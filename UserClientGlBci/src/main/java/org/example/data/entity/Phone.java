@@ -4,33 +4,34 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "phone")
+@Table(name = "phones")
 public class Phone {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number", nullable = false)
+    @Column(name = "userId", nullable = false)
+    private UUID userId;
+
+    @Column(name = "number")
     private Long number;
 
-    @Column(name = "citycode", nullable = false)
+    @Column(name = "citycode")
     private Integer citycode;
 
-    @Column(name = "contrycode", nullable = false, length = 10)
+    @Column(name = "countrycode", length = 2)
     private String countrycode;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
 
     public Phone() {}
 
-    public Phone(Long number, Integer citycode, String countrycode) {
+    public Phone(UUID userId, Long number, Integer citycode, String countrycode) {
+        this.userId = userId;
         this.number = number;
         this.citycode = citycode;
         this.countrycode = countrycode;
