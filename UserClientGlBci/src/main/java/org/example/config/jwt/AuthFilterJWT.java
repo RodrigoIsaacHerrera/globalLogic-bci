@@ -1,5 +1,11 @@
 package org.example.config.jwt;
 
+import org.example.web.service.JwtService;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -15,15 +21,36 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Component
 public class AuthFilterJWT extends OncePerRequestFilter {
 
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+
+    public AuthFilterJWT(JwtService jwtService, UserDetailsService userDetailsService) {
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         final String TOKEN = getTokenRequest(request);
+        final String userName;
 
         if(TOKEN == null){
             filterChain.doFilter(request,response);
             return;
         }
+        userName = jwtService.getUsernameFromToken(TOKEN);
+
+        if (userName!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+            if(jwtService.isTokenValid(TOKEN, userDetails)){
+                UsernamePasswordAuthenticationToken premissionToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+
+                premissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            }
+        }
+
         filterChain.doFilter(request,response);
 
     }

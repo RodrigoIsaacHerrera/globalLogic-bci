@@ -9,16 +9,15 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ErrorResponse {
 
-    public ErrorResponse(String message, int code, String status, LocalDateTime timestamp) {
-        this.message = message;
-        this.code = code;
-        this.status = status;
+    private LocalDateTime timestamp;
+    private int code;
+    private String detail;
+
+    public ErrorResponse(LocalDateTime timestamp, int code, String detail) {
         this.timestamp = timestamp;
+        this.code = code;
+        this.detail = detail;
     }
 
-    private String message;
-    private int code;
-    private String status;
-    private LocalDateTime timestamp;
 
 }

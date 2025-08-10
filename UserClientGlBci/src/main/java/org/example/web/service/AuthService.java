@@ -1,16 +1,22 @@
 package org.example.web.service;
 
 import org.example.config.jwt.AccessRequest;
-import org.example.config.jwt.AuthResponse;
 import org.example.config.jwt.SignUpRequest;
 import org.example.data.entity.Phone;
 import org.example.data.entity.User;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
+import org.example.web.reponse.LoginResponse;
+import org.example.web.reponse.SignUpResponse;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.sql.Date;
 import java.util.UUID;
 
 @Service
@@ -19,47 +25,57 @@ public class AuthService {
 
     private final UsersRepository usersRepository;
     private final PhonesRepository phonesRepository;
+    private final AuthenticationManager authManager;
     private final JwtService jwtService;
 
-    public AuthService(UsersRepository usersRepository, PhonesRepository phonesRepository, JwtService jwtService){
+    public AuthService(UsersRepository usersRepository, PhonesRepository phonesRepository,
+                       AuthenticationManager authManager, JwtService jwtService) {
         this.usersRepository = usersRepository;
         this.phonesRepository = phonesRepository;
+        this.authManager = authManager;
         this.jwtService = jwtService;
     }
-    public AuthResponse login(AccessRequest loginRequest) {
-        return null;
-    }
 
-    public AuthResponse register(SignUpRequest registerRequest) {
+    public SignUpResponse signUp(SignUpRequest registerRequest) throws DuplicateKeyException {
         UUID userId;
         User signUser = new User(registerRequest);
         userId = signUser.getId();
-        //aqui validar si existe y retornar error con su manejo de excepciones;
-        usersRepository.save(signUser);
-        registerRequest.getPhones().stream().forEach(phone -> {
-            phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()));
-        });
-        //cambiar aqui jwtService.generateToken()
+        if (!usersRepository.existsById(userId)) {
+            usersRepository.save(signUser);
+        } else {
+            throw new DuplicateKeyException(HttpStatus.CONFLICT.getReasonPhrase());
+        }
+        if (!registerRequest.getPhones().isEmpty()) {
+            registerRequest.getPhones().forEach(phone -> {
+                phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()));
+            });
+        }
+        SignUpResponse signUpResponse = assemblerObjectSignUp(usersRepository
+                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow());
+
+        assert signUpResponse != null;
+        String token = jwtService.generateRecordToken(signUpResponse);
+        signUpResponse.setToken(token);
+        return signUpResponse;
+    }
+
+    public LoginResponse login(AccessRequest loginRequest) {
+
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        UserDetails user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+        String token = jwtService.generateLoginToken(user);
         // en caso de save exitoso del usuario (opcional telefono) instanciar objeto RegisteredUser
         // pendiente modificar el objeto AuthResponse (completar) de respuesta a HTTPie app
-
-        return AuthResponse.builder()
-                .token(jwtService.generateRecordToken(usersRepository.findByEmailContainingIgnoreCase(signUser.getEmail())
-                        .get())).build();
+        return null; //new LoginResponse()
     }
-    static void assemblerObjectRecord(User userR, List<Phone> phoneList){
-        /*
-        refactorizar este metodo para retornar al FrontEnd, esta clase ayudara heredando sus atributos
-        a el objeto json a retornar de endpoint login.
 
-        RegisteredUser
+    static SignUpResponse assemblerObjectSignUp(User userR) {
 
-        id: id del usuario (puede ser lo que se genera por el banco de datos, pero sería más deseable un UUID)
-
-        crear tabla con su servicio RECFL (RECORD FORWARD LOG)
-        ○ created: fecha de creación del usuario
-        ○ lastLogin: del último ingreso
-        ○ token: token de acceso de la API (debe utilizar JWT)
-        ○ isActive: Indica si el usuario sigue habilitado dentro del sistema.*/
+        SignUpResponse sUResponse = SignUpResponse.builder().user(userR)
+                .id(userR.getId().toString())
+                .created(new Date(System.currentTimeMillis()).toString())
+                .lastLogin(new Date(System.currentTimeMillis()).toString())
+                .token("").isActive(userR.isCredentialsNonExpired()).build();
+        return sUResponse;
     }
 }
