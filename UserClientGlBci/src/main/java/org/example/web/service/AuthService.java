@@ -10,6 +10,7 @@ import org.example.data.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,9 +19,12 @@ public class AuthService {
 
     private final UsersRepository usersRepository;
     private final PhonesRepository phonesRepository;
-    public AuthService(UsersRepository usersRepository, PhonesRepository phonesRepository){
+    private final JwtService jwtService;
+
+    public AuthService(UsersRepository usersRepository, PhonesRepository phonesRepository, JwtService jwtService){
         this.usersRepository = usersRepository;
         this.phonesRepository = phonesRepository;
+        this.jwtService = jwtService;
     }
     public AuthResponse login(AccessRequest loginRequest) {
         return null;
@@ -35,6 +39,27 @@ public class AuthService {
         registerRequest.getPhones().stream().forEach(phone -> {
             phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()));
         });
-        return AuthResponse.builder().token("creandoToken").build();
+        //cambiar aqui jwtService.generateToken()
+        // en caso de save exitoso del usuario (opcional telefono) instanciar objeto RegisteredUser
+        // pendiente modificar el objeto AuthResponse (completar) de respuesta a HTTPie app
+
+        return AuthResponse.builder()
+                .token(jwtService.generateRecordToken(usersRepository.findByEmailContainingIgnoreCase(signUser.getEmail())
+                        .get())).build();
+    }
+    static void assemblerObjectRecord(User userR, List<Phone> phoneList){
+        /*
+        refactorizar este metodo para retornar al FrontEnd, esta clase ayudara heredando sus atributos
+        a el objeto json a retornar de endpoint login.
+
+        RegisteredUser
+
+        id: id del usuario (puede ser lo que se genera por el banco de datos, pero sería más deseable un UUID)
+
+        crear tabla con su servicio RECFL (RECORD FORWARD LOG)
+        ○ created: fecha de creación del usuario
+        ○ lastLogin: del último ingreso
+        ○ token: token de acceso de la API (debe utilizar JWT)
+        ○ isActive: Indica si el usuario sigue habilitado dentro del sistema.*/
     }
 }
