@@ -4,7 +4,7 @@ import lombok.*;
 import org.example.data.entity.Phone;
 import java.util.List;
 
-@Builder
+
 @Getter
 @Setter
 @NoArgsConstructor

@@ -7,7 +7,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.UUID;
 
-@Builder
 @Getter
 @Setter
 @Entity
