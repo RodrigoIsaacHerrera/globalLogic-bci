@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.data.repository.UsersRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -37,12 +36,12 @@ public class ApplicationConfig {
     }
 
     @Bean
-    private PasswordEncoder getPassEncoder() {
+    public PasswordEncoder getPassEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    private UserDetailsService getUserDetService() {
+    public UserDetailsService getUserDetService() {
         return username -> usersRepository.findById(UUID.fromString(username))
                 .orElseThrow(()-> new UsernameNotFoundException(HttpStatus.NOT_FOUND.toString()));
     }
