@@ -42,6 +42,7 @@ public class JwtService {
 
 
     String getLoginToken(Map<String, Object> exClaims, UserDetails user) {
+
         return Jwts.builder()
                 .setClaims(exClaims).
                 signWith(Keys.hmacShaKeyFor(user.getUsername().getBytes(StandardCharsets.UTF_8)),
@@ -49,7 +50,7 @@ public class JwtService {
     }
 
     public String getUsernameFromToken(String token) {
-        return getClaim(token, Claims::getSubject);
+        return getClaim(token, Claims::getId);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

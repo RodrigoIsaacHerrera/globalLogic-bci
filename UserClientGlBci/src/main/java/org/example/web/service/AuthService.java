@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -60,13 +62,12 @@ public class AuthService {
     }
 
     public LoginResponse login(AccessRequest loginRequest) {
-
+        List<Phone> phones = new ArrayList<>();
         authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-        UserDetails user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+        User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+        phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone)phone));
         String token = jwtService.generateLoginToken(user);
-        // en caso de save exitoso del usuario (opcional telefono) instanciar objeto RegisteredUser
-        // pendiente modificar el objeto AuthResponse (completar) de respuesta a HTTPie app
-        return null; //new LoginResponse()
+        return assemblerObjectLogin(user, phones, token);
     }
 
     static SignUpResponse assemblerObjectSignUp(User userR) {
@@ -77,5 +78,13 @@ public class AuthService {
                 .lastLogin(new Date(System.currentTimeMillis()).toString())
                 .token("").isActive(userR.isCredentialsNonExpired()).build();
         return sUResponse;
+    }
+    static LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, String token) {
+        SignUpResponse sUResponse = SignUpResponse.builder().user(userL)
+                .id(userL.getId().toString())
+                .created(new Date(System.currentTimeMillis()).toString())
+                .lastLogin(new Date(System.currentTimeMillis()).toString())
+                .token(token).isActive(userL.isCredentialsNonExpired()).build();
+        return new LoginResponse(sUResponse, phones, userL);
     }
 }
