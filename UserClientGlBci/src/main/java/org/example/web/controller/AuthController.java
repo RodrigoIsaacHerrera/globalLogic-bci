@@ -4,14 +4,14 @@ package org.example.web.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.config.jwt.AccessRequest;
 import org.example.config.jwt.AuthResponse;
-import org.example.config.jwt.AuthService;
-import org.example.config.jwt.RegisterRequest;
+import org.example.config.jwt.SignUpRequest;
+import org.example.web.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @ResponseBody
-@RequestMapping("/api/v1")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -23,8 +23,8 @@ public class AuthController {
         return ResponseEntity.ok(this.loginService.login(loginRequest));
     }
 
-    @PostMapping(value = "/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest registerRequest){
+    @PostMapping(value = "/sign-up")
+    public ResponseEntity<AuthResponse> register(@RequestBody SignUpRequest registerRequest){
         return ResponseEntity.ok(this.loginService.register(registerRequest));
     }
 }

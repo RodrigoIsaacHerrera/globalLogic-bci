@@ -14,6 +14,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 public class AuthFilterJWT extends OncePerRequestFilter {
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
