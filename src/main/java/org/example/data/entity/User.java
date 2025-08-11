@@ -48,6 +48,11 @@ public class User implements UserDetails {
         this.password = registerRequest.getEmail();
     }
 
+
+    public String getIdString() {
+        return this.id.toString();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(RolePermissions.NOADMIN.name()));
@@ -55,7 +60,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.getId().toString();
+        return this.getEmail();
     }
 
     @Override

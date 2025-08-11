@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.example.data.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,39 +19,46 @@ import java.util.function.Function;
 public class JwtService {
 
 
-    public String generateRecordToken(UserDetails user) {
+    public String generateRecordToken(User user) {
         return getSignUpToken(new HashMap<>(), user);
     }
 
-    public String generateLoginToken(UserDetails user) {
+    public String generateLoginToken(User user) {
         return getLoginToken(new HashMap<>(), user);
     }
 
-    String getSignUpToken(Map<String, Object> exClaims, UserDetails user) {
+    String getSignUpToken(Map<String, Object> exClaims, User user) {
         String dateOrigin = new Date(System.currentTimeMillis()).toString();
+        String id = "id";
         exClaims.put("isActive", true);
         exClaims.put("lastLogin", dateOrigin);
         exClaims.put("created", dateOrigin);
-        exClaims.put("id", user.getUsername());
+        exClaims.put("id", user.getId());
 
         return Jwts.builder()
-                .setId(user.getUsername())
+                .setId(exClaims.get(id).toString())
                 .setClaims(exClaims)
-                .signWith(Keys.hmacShaKeyFor(user.getUsername().getBytes(StandardCharsets.UTF_8)),
+                .setSubject(user.getIdString())
+                .signWith(Keys.hmacShaKeyFor(user.getIdString().getBytes(StandardCharsets.UTF_8)),
                         SignatureAlgorithm.HS256).compact();
     }
 
 
-    String getLoginToken(Map<String, Object> exClaims, UserDetails user) {
-
+    String getLoginToken(Map<String, Object> exClaims, User user) {
+        String dateLogin = new Date(System.currentTimeMillis()).toString();
+        String id = "id";
+        exClaims.put("isActive", true);
+        exClaims.put("lastLogin", dateLogin);
+        exClaims.put("created", dateLogin); // debe ser cambiado aun base de datos que registre session traffic
+        exClaims.put("id", user.getId());
         return Jwts.builder()
                 .setClaims(exClaims).
-                signWith(Keys.hmacShaKeyFor(user.getUsername().getBytes(StandardCharsets.UTF_8)),
+                signWith(Keys.hmacShaKeyFor(user.getIdString().getBytes(StandardCharsets.UTF_8)),
                         SignatureAlgorithm.HS256).compact();
     }
 
     public String getUsernameFromToken(String token) {
-        return getClaim(token, Claims::getId);
+        return getClaim(token, Claims::getSubject);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

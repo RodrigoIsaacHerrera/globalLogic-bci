@@ -12,7 +12,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,8 +55,8 @@ public class AuthService {
                 .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow());
 
         assert signUpResponse != null;
-        String token = jwtService.generateRecordToken(signUpResponse);
-        signUpResponse.setToken(token);
+
+        //signUpResponse.setToken(token);
         return signUpResponse;
     }
 
@@ -65,18 +64,19 @@ public class AuthService {
         List<Phone> phones = new ArrayList<>();
         authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+        System.out.println(user);
         phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone)phone));
         String token = jwtService.generateLoginToken(user);
         return assemblerObjectLogin(user, phones, token);
     }
 
-    static SignUpResponse assemblerObjectSignUp(User userR) {
-
+    private SignUpResponse assemblerObjectSignUp(User userR) {
+         String token = jwtService.generateRecordToken(userR);
         SignUpResponse sUResponse = SignUpResponse.builder().user(userR)
                 .id(userR.getId().toString())
                 .created(new Date(System.currentTimeMillis()).toString())
                 .lastLogin(new Date(System.currentTimeMillis()).toString())
-                .token("").isActive(userR.isCredentialsNonExpired()).build();
+                .token(token).isActive(userR.isCredentialsNonExpired()).build();
         return sUResponse;
     }
     static LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, String token) {
