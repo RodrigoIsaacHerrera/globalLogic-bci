@@ -15,53 +15,8 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class SignUpResponse implements UserDetails {
+public class SignUpResponse {
     User user;
     String id, created, lastLogin, token, password;
     boolean isActive;
-
-
-    public SignUpResponse(String id, String created, String lastLogin, String token, String password, boolean isActive) {
-        this.id = id;
-        this.created = created;
-        this.lastLogin = lastLogin;
-        this.token = token;
-        this.password = password;
-        this.isActive = isActive;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.id;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }
