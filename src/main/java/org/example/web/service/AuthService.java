@@ -12,6 +12,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +25,16 @@ import java.util.UUID;
 @Transactional
 public class AuthService {
 
+
+    private final PasswordEncoder passwordEncoder;
     private final UsersRepository usersRepository;
     private final PhonesRepository phonesRepository;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
 
-    public AuthService(UsersRepository usersRepository, PhonesRepository phonesRepository,
+    public AuthService(PasswordEncoder passwordEncoder, UsersRepository usersRepository, PhonesRepository phonesRepository,
                        AuthenticationManager authManager, JwtService jwtService) {
+        this.passwordEncoder = passwordEncoder;
         this.usersRepository = usersRepository;
         this.phonesRepository = phonesRepository;
         this.authManager = authManager;
@@ -38,12 +42,13 @@ public class AuthService {
     }
 
     public SignUpResponse signUp(SignUpRequest registerRequest) throws DuplicateKeyException {
+
         UUID userId = UUID.randomUUID();
         User signUser = new User();
         signUser.setId(userId);
         signUser.setName(registerRequest.getName());
         signUser.setEmail(registerRequest.getEmail());
-        signUser.setPassword(registerRequest.getPassword());
+        signUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         if (!usersRepository.existsById(userId)) {
             usersRepository.save(signUser);
         } else {
@@ -64,23 +69,30 @@ public class AuthService {
 
     public LoginResponse login(AccessRequest loginRequest) {
         List<Phone> phones = new ArrayList<>();
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-        User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
-        System.out.println(user);
-        phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone)phone));
-        String token = jwtService.generateLoginToken(user);
-        return assemblerObjectLogin(user, phones, token);
+        LoginResponse loginResponse;
+        try {
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+            phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
+            loginResponse = assemblerObjectLogin(user, phones);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return loginResponse;
     }
 
     private SignUpResponse assemblerObjectSignUp(User userR) {
-         String token = jwtService.generateRecordToken(userR);
+         String token = jwtService.generateToken(userR);
         return SignUpResponse.builder().user(userR)
                 .id(userR.getId().toString())
                 .created(new Date(System.currentTimeMillis()).toString())
                 .lastLogin(new Date(System.currentTimeMillis()).toString())
                 .token(token).isActive(userR.isCredentialsNonExpired()).build();
     }
-    static LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, String token) {
+    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones) {
+        String token = jwtService.generateToken(userL);
         SignUpResponse sUResponse = SignUpResponse.builder().user(userL)
                 .id(userL.getId().toString())
                 .created(new Date(System.currentTimeMillis()).toString())

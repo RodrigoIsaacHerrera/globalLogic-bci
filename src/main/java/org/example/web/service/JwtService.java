@@ -3,6 +3,7 @@ package org.example.web.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.example.data.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,12 +20,10 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    final String secret = "586E3272357578982F413F4428472B4B6250655368566B598071733676397924";
 
-    public String generateRecordToken(User user) {
-        return getToken(new HashMap<>(), user);
-    }
+    public String generateToken(User user) {
 
-    public String generateLoginToken(User user) {
         return getToken(new HashMap<>(), user);
     }
 
@@ -35,20 +35,16 @@ public class JwtService {
         exClaims.put("created", dateOrigin);
         exClaims.put("id", user.getId().toString());
 
-
-
         return Jwts.builder()
+                .setId(user.getId().toString())
                 .setClaims(exClaims)
                 .setSubject(user.getEmail())
-                .signWith(getKey(user.getId().toString()), SignatureAlgorithm.HS256).compact();
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
+                .signWith(getKey(),SignatureAlgorithm.HS256).compact();
     }
 
     public String getUsernameFromToken(String token) {
         return getClaim(token, Claims::getSubject);
-    }
-
-    public String getIdFromToken(String token) {
-        return getClaim(token, Claims::getId);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -59,14 +55,15 @@ public class JwtService {
     private Claims getAllClaims(String token) {
         return Jwts
                 .parserBuilder()
-                .setSigningKey(getKey(getIdFromToken(token)))
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    private SecretKey getKey(String usernameFromToken) {
-        return Keys.hmacShaKeyFor(usernameFromToken.getBytes(StandardCharsets.UTF_8));
+    private Key getKey() {
+        byte[] keyBytes= Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
 
