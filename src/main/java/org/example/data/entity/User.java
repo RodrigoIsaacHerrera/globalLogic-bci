@@ -1,7 +1,6 @@
 package org.example.data.entity;
 
 import lombok.*;
-import org.example.config.jwt.SignUpRequest;
 import org.example.enums.RolePermissions;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

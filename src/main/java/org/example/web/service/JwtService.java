@@ -40,7 +40,7 @@ public class JwtService {
         return Jwts.builder()
                 .setClaims(exClaims)
                 .setSubject(user.getEmail())
-                .signWith(getKey(user.getIdString()), SignatureAlgorithm.HS256).compact();
+                .signWith(getKey(user.getId().toString()), SignatureAlgorithm.HS256).compact();
     }
 
     public String getUsernameFromToken(String token) {
