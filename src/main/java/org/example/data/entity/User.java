@@ -45,7 +45,7 @@ public class User implements UserDetails {
         this.id = UUID.randomUUID();
         this.name = registerRequest.getName();
         this.email = registerRequest.getEmail();
-        this.password = registerRequest.getEmail();
+        this.password = registerRequest.getPassword();
     }
 
 
