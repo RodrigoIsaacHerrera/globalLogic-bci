@@ -20,56 +20,46 @@ public class JwtService {
 
 
     public String generateRecordToken(User user) {
-        return getSignUpToken(new HashMap<>(), user);
+        return getToken(new HashMap<>(), user);
     }
 
     public String generateLoginToken(User user) {
-        return getLoginToken(new HashMap<>(), user);
+        return getToken(new HashMap<>(), user);
     }
 
-    String getSignUpToken(Map<String, Object> exClaims, User user) {
+    String getToken(Map<String, Object> exClaims, User user) {
         String dateOrigin = new Date(System.currentTimeMillis()).toString();
-        String id = "id";
+
         exClaims.put("isActive", true);
         exClaims.put("lastLogin", dateOrigin);
         exClaims.put("created", dateOrigin);
-        exClaims.put("id", user.getId());
+        exClaims.put("id", user.getId().toString());
+
+
 
         return Jwts.builder()
-                .setId(exClaims.get(id).toString())
                 .setClaims(exClaims)
-                .setSubject(user.getIdString())
-                .signWith(Keys.hmacShaKeyFor(user.getIdString().getBytes(StandardCharsets.UTF_8)),
-                        SignatureAlgorithm.HS256).compact();
-    }
-
-
-    String getLoginToken(Map<String, Object> exClaims, User user) {
-        String dateLogin = new Date(System.currentTimeMillis()).toString();
-        String id = "id";
-        exClaims.put("isActive", true);
-        exClaims.put("lastLogin", dateLogin);
-        exClaims.put("created", dateLogin); // debe ser cambiado aun base de datos que registre session traffic
-        exClaims.put("id", user.getId());
-        return Jwts.builder()
-                .setClaims(exClaims).
-                signWith(Keys.hmacShaKeyFor(user.getIdString().getBytes(StandardCharsets.UTF_8)),
-                        SignatureAlgorithm.HS256).compact();
+                .setSubject(user.getEmail())
+                .signWith(getKey(user.getIdString()), SignatureAlgorithm.HS256).compact();
     }
 
     public String getUsernameFromToken(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
+    public String getIdFromToken(String token) {
+        return getClaim(token, Claims::getId);
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
+        String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private Claims getAllClaims(String token) {
         return Jwts
                 .parserBuilder()
-                .setSigningKey(getKey(getUsernameFromToken(token)))
+                .setSigningKey(getKey(getIdFromToken(token)))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

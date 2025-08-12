@@ -16,7 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"id"})}, schema = "myapp")
+@Table(name = "users", schema = "myapp")
 public class User implements UserDetails {
 
     @Id
@@ -34,28 +34,16 @@ public class User implements UserDetails {
 
     public User() {}
 
-    public User(String name, String email, String password) {
-        this.id = UUID.randomUUID();
+    public User(UUID id, String name, String email, String password) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
     }
 
-    public User(SignUpRequest registerRequest) {
-        this.id = UUID.randomUUID();
-        this.name = registerRequest.getName();
-        this.email = registerRequest.getEmail();
-        this.password = registerRequest.getPassword();
-    }
-
-
-    public String getIdString() {
-        return this.id.toString();
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(RolePermissions.NOADMIN.name()));
+        return List.of(new SimpleGrantedAuthority(RolePermissions.ADMIN.name()));
     }
 
     @Override

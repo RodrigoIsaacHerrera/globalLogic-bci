@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @JsonTest
 public class UserJsonTest {
@@ -20,14 +21,16 @@ public class UserJsonTest {
     @Test
     void userSerializationTest() throws IOException {
         Resource resource = new ClassPathResource("JsonInputUser/expectedUser.json");
-        User user = new User("Juan Pérez", "juan.perez@example.com", "password123");
+        UUID uuid = UUID.randomUUID();
+        User user = new User(uuid, "Juan Pérez", "juan.perez@example.com", "password123");
         assertThat(json.write(user)).isNotEqualToJson(resource.getFile());
     }
 
     @Test
     void userSerializationStrictTest() throws IOException {
         Resource resource = new ClassPathResource("JsonInputUser/expectedUser.json");
-        User user = new User("Juan Pérez",
+        UUID uuid = UUID.randomUUID();
+        User user = new User(uuid,"Juan Pérez",
                 "juan.perez@example.com",
                 "a2asfGfdfdf4");
 

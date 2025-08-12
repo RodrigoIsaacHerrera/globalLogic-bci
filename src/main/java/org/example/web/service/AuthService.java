@@ -38,9 +38,12 @@ public class AuthService {
     }
 
     public SignUpResponse signUp(SignUpRequest registerRequest) throws DuplicateKeyException {
-        UUID userId;
-        User signUser = new User(registerRequest);
-        userId = signUser.getId();
+        UUID userId = UUID.randomUUID();
+        User signUser = new User();
+        signUser.setId(userId);
+        signUser.setName(registerRequest.getName());
+        signUser.setEmail(registerRequest.getEmail());
+        signUser.setPassword(registerRequest.getPassword());
         if (!usersRepository.existsById(userId)) {
             usersRepository.save(signUser);
         } else {
@@ -56,7 +59,6 @@ public class AuthService {
 
         assert signUpResponse != null;
 
-        //signUpResponse.setToken(token);
         return signUpResponse;
     }
 
@@ -72,12 +74,11 @@ public class AuthService {
 
     private SignUpResponse assemblerObjectSignUp(User userR) {
          String token = jwtService.generateRecordToken(userR);
-        SignUpResponse sUResponse = SignUpResponse.builder().user(userR)
+        return SignUpResponse.builder().user(userR)
                 .id(userR.getId().toString())
                 .created(new Date(System.currentTimeMillis()).toString())
                 .lastLogin(new Date(System.currentTimeMillis()).toString())
                 .token(token).isActive(userR.isCredentialsNonExpired()).build();
-        return sUResponse;
     }
     static LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, String token) {
         SignUpResponse sUResponse = SignUpResponse.builder().user(userL)

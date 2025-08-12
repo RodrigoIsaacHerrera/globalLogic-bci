@@ -42,7 +42,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService getUserDetService() {
-        return username -> usersRepository.findById(UUID.fromString(username))
+        return username -> usersRepository.findByEmailContainingIgnoreCase(username)
                 .orElseThrow(()-> new UsernameNotFoundException(HttpStatus.NOT_FOUND.toString()));
     }
 }

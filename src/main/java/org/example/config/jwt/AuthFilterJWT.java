@@ -32,22 +32,22 @@ public class AuthFilterJWT extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        final String TOKEN = getTokenRequest(request);
-        final String userName;
+        final String token = getTokenRequest(request);
+        final String username;
 
-        if(TOKEN == null){
+        if(token == null){
             filterChain.doFilter(request,response);
             return;
         }
-        userName = jwtService.getUsernameFromToken(TOKEN);
-        System.out.println("************************** USERNAME FROM TOKEN***********  "+userName);
-        if (userName!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-            if(jwtService.isTokenValid(TOKEN, userDetails)){
-                UsernamePasswordAuthenticationToken premissionToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, TOKEN, userDetails.getAuthorities());
+        username = jwtService.getUsernameFromToken(token);
+        System.out.println("************************** USERNAME FROM token***********  "+username);
+        if (username !=null && SecurityContextHolder.getContext().getAuthentication()==null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            if(jwtService.isTokenValid(token, userDetails)){
+                UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, token, userDetails.getAuthorities());
 
-                premissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             }
         }
 

@@ -9,6 +9,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,7 +24,8 @@ public class PhoneJsonTest {
 
     @BeforeEach
     void setUp() {
-        user = new User("Carlos Ruiz","carlos@example.com","pass123");
+        UUID uuid = UUID.randomUUID();
+        user = new User(uuid,"Carlos Ruiz","carlos@example.com","pass123");
     }
 
     @Test
