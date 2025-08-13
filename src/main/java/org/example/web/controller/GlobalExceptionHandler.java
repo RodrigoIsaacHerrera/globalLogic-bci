@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.security.SignatureException;
 import java.time.LocalDateTime;
 
+@ControllerAdvice
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -82,14 +84,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handleExpiredJwt(ExpiredJwtException ex) {
         String detail = "Error authentication TOKEN_EXPIRED. ";
-        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),
-                HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-    }
-
-    @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidSignature(SignatureException ex) {
-        String detail = "Error authentication INVALID_SIGNATURE. ";
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
