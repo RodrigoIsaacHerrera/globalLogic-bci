@@ -9,7 +9,6 @@ import org.example.data.mappers.PhoneMapper;
 
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
 @AllArgsConstructor

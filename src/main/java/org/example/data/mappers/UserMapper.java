@@ -7,7 +7,7 @@ import java.util.List;
 @Builder
 @Getter
 @AllArgsConstructor
-public class UserMapper { //podrian ser perfectamente records
+public class UserMapper {
 
     String id;
     String name;

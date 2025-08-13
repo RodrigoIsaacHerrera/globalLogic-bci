@@ -55,16 +55,13 @@ public class AuthService {
             throw new DuplicateKeyException(HttpStatus.CONFLICT.getReasonPhrase());
         }
         if (!registerRequest.getPhones().isEmpty()) {
-            registerRequest.getPhones().forEach(phone -> {
-                phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()));
-            });
+            registerRequest.getPhones().forEach(phone ->
+                    phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()))
+            );
         }
-        SignUpResponse signUpResponse = assemblerObjectSignUp(usersRepository
+
+        return assemblerObjectSignUp(usersRepository
                 .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(), registerRequest.getPhones());
-
-        assert signUpResponse != null;
-
-        return signUpResponse;
     }
 
     public LoginResponse login(AccessRequest loginRequest) {
@@ -75,11 +72,7 @@ public class AuthService {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                     loginRequest.getPassword()));//considerar que se debe authenticar usando el UUID
             User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
-            phonesRepository.findAllByUserId(user.getId()).forEach(phone ->
-                    {
-                        phones.add((Phone) phone);
-                    }
-            );
+            phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
             loginResponse = assemblerObjectLogin(user, phones);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -96,27 +89,17 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return SignUpResponse.builder().user(userMapperMethod(userR, phones))
-                .id(userR.getId().toString())
-                .created(new Date(System.currentTimeMillis()).toString())
-                .lastLogin(new Date(System.currentTimeMillis()).toString())
-                .token(token).isActive(userR.isCredentialsNonExpired()).build();
+        return new SignUpResponse(userMapperMethod(userR, phones), userR.getId().toString(),
+                new Date(System.currentTimeMillis()).toString(), new Date(System.currentTimeMillis()).toString(),
+                token, userR.isCredentialsNonExpired());
     }
 
     private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones) {
         String token = jwtService.generateToken(userL);
         UserMapper user = userMapperMethod(userL, phones);
-        return LoginResponse.builder()
-                .id(user.getId())
-                .created(new Date(System.currentTimeMillis()).toString())
-                .lastLogin(new Date(System.currentTimeMillis()).toString())
-                .token(token)
-                .isActive(userL.isCredentialsNonExpired())
-                .name(user.getName())
-                .email(user.getEmail())
-                .password(user.getPassword()) //Decodificar usando Password Decoder
-                .phones(user.getPhones()).build();
+        return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),
+                new Date(System.currentTimeMillis()).toString(),
+                token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());
     }
 
     private UserMapper userMapperMethod(User userM, List<Phone> phones) {
@@ -124,13 +107,9 @@ public class AuthService {
         UserMapper user;
         List<PhoneMapper> phoneMappers = new ArrayList<>();
         try {
-            phones.forEach(phone -> {
-                phoneMappers.add(new PhoneMapper(phone.getNumber(), phone.getCitycode(), phone.getCountrycode()));
-            });
-            user = UserMapper.builder()
-                    .id(userM.getId().toString())
-                    .name(userM.getName())
-                    .email(userM.getEmail())
+            phones.forEach(phone ->
+                    phoneMappers.add(new PhoneMapper(phone.getNumber(), phone.getCitycode(), phone.getCountrycode())));
+            user = UserMapper.builder().id(userM.getId().toString()).name(userM.getName()).email(userM.getEmail())
                     .password(userM.getPassword())
                     .phones(phoneMappers).build();
         } catch (Exception e) {
