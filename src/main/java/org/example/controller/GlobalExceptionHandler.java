@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         String detail = "An unexpected error occurred  ";
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                detail.concat(HttpStatus.NOT_FOUND.name())
+                detail.concat(HttpStatus.NOT_FOUND.name()+ex.getMessage())
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
         String detail = "Error authentication . ";
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),
-                detail.concat(HttpStatus.NOT_FOUND.name()));
+                detail.concat(HttpStatus.NOT_FOUND.name()+ ex.getMessage()));
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
