@@ -4,6 +4,8 @@ import org.example.config.jwt.AccessRequest;
 import org.example.config.jwt.SignUpRequest;
 import org.example.data.entity.Phone;
 import org.example.data.entity.User;
+import org.example.data.mappers.PhoneMapper;
+import org.example.data.mappers.UserMapper;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
 import org.example.web.reponse.LoginResponse;
@@ -17,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional
@@ -60,7 +60,7 @@ public class AuthService {
             });
         }
         SignUpResponse signUpResponse = assemblerObjectSignUp(usersRepository
-                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow());
+                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(), registerRequest.getPhones());
 
         assert signUpResponse != null;
 
@@ -70,10 +70,16 @@ public class AuthService {
     public LoginResponse login(AccessRequest loginRequest) {
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
+
         try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+                    loginRequest.getPassword()));//considerar que se debe authenticar usando el UUID
             User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
-            phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
+            phonesRepository.findAllByUserId(user.getId()).forEach(phone ->
+                    {
+                        phones.add((Phone) phone);
+                    }
+            );
             loginResponse = assemblerObjectLogin(user, phones);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -83,21 +89,53 @@ public class AuthService {
         return loginResponse;
     }
 
-    private SignUpResponse assemblerObjectSignUp(User userR) {
-         String token = jwtService.generateToken(userR);
-        return SignUpResponse.builder().user(userR)
+    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones) {
+        String token;
+        try {
+            token = jwtService.generateToken(userR);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return SignUpResponse.builder().user(userMapperMethod(userR, phones))
                 .id(userR.getId().toString())
                 .created(new Date(System.currentTimeMillis()).toString())
                 .lastLogin(new Date(System.currentTimeMillis()).toString())
                 .token(token).isActive(userR.isCredentialsNonExpired()).build();
     }
+
     private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones) {
         String token = jwtService.generateToken(userL);
-        SignUpResponse sUResponse = SignUpResponse.builder().user(userL)
-                .id(userL.getId().toString())
+        UserMapper user = userMapperMethod(userL, phones);
+        return LoginResponse.builder()
+                .id(user.getId())
                 .created(new Date(System.currentTimeMillis()).toString())
                 .lastLogin(new Date(System.currentTimeMillis()).toString())
-                .token(token).isActive(userL.isCredentialsNonExpired()).build();
-        return new LoginResponse(sUResponse, phones, userL);
+                .token(token)
+                .isActive(userL.isCredentialsNonExpired())
+                .name(user.getName())
+                .email(user.getEmail())
+                .password(user.getPassword()) //Decodificar usando Password Decoder
+                .phones(user.getPhones()).build();
+    }
+
+    private UserMapper userMapperMethod(User userM, List<Phone> phones) {
+
+        UserMapper user;
+        List<PhoneMapper> phoneMappers = new ArrayList<>();
+        try {
+            phones.forEach(phone -> {
+                phoneMappers.add(new PhoneMapper(phone.getNumber(), phone.getCitycode(), phone.getCountrycode()));
+            });
+            user = UserMapper.builder()
+                    .id(userM.getId().toString())
+                    .name(userM.getName())
+                    .email(userM.getEmail())
+                    .password(userM.getPassword())
+                    .phones(phoneMappers).build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
 }

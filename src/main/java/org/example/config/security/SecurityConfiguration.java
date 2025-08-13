@@ -37,18 +37,4 @@ public class SecurityConfiguration {
                 .addFilterBefore(jwtAccessFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 
-/*    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authz -> authz
-                .antMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated()
-        );
-        http.csrf(csrf -> csrf
-                .ignoringAntMatchers("/h2-console/**")
-        );
-        http.headers(headers -> headers
-                .frameOptions().sameOrigin()
-        );
-        return http.build();
-    }*/
 }
