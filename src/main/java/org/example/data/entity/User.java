@@ -1,7 +1,7 @@
 package org.example.data.entity;
 
 import lombok.*;
-import org.example.enums.RolePermissions;
+import org.example.shared.enums.RolePermissions;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,7 +42,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(RolePermissions.ADMIN.name()));
+        return List.of(new SimpleGrantedAuthority(RolePermissions.USER.name()));
     }
 
     @Override

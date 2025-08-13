@@ -1,4 +1,4 @@
-package org.example.web.controller;
+package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

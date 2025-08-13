@@ -1,4 +1,4 @@
-package org.example.web.service;
+package org.example.service;
 
 import org.example.config.jwt.JwtService;
 import org.example.web.request.LoginRequest;

@@ -1,4 +1,4 @@
-package org.example.web.controller;
+package org.example.controller;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

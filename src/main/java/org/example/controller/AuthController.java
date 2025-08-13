@@ -1,4 +1,4 @@
-package org.example.web.controller;
+package org.example.controller;
 
 
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
-import org.example.web.service.AuthService;
+import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
