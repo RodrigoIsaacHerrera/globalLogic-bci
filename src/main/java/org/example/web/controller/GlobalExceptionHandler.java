@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.security.SignatureException;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -96,6 +95,4 @@ public class GlobalExceptionHandler {
                 HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
-
-
 }

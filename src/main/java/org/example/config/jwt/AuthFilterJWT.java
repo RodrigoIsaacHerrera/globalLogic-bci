@@ -1,6 +1,6 @@
 package org.example.config.jwt;
 
-import org.example.web.service.JwtService;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,12 +39,16 @@ public class AuthFilterJWT extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
-        username = jwtService.getUsernameFromToken(token);
+        try {
+            username = jwtService.getUsernameFromToken(token);
+        } catch (AuthenticationCredentialsNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (username !=null && SecurityContextHolder.getContext().getAuthentication()==null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if(jwtService.isTokenValid(token, userDetails)){
                 UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, token, userDetails.getAuthorities());
+                        userDetails, null, userDetails.getAuthorities());
 
                 permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             }

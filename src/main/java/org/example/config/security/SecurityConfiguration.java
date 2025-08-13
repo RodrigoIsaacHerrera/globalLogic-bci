@@ -29,7 +29,6 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authRequest ->
                         authRequest.antMatchers("/auth/**").permitAll()
                                 .antMatchers("/h2-console/**").permitAll()
-                                .antMatchers("localhost").permitAll()
                 .anyRequest().authenticated()
                 ).sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

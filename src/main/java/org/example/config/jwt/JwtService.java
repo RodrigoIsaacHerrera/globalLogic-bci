@@ -1,10 +1,11 @@
-package org.example.web.service;
+package org.example.config.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.example.data.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private Claims getAllClaims(String token) {
+    private Claims getAllClaims(String token) throws SignatureException {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getKey())
@@ -66,7 +67,11 @@ public class JwtService {
 
 
     public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaims(token);
+        final Claims claims;
+        try{ claims = getAllClaims(token);} catch (SignatureException e) {
+            throw new RuntimeException(e);
+        }
+
         return claimsResolver.apply(claims);
     }
 

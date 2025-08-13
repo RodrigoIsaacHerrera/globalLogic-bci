@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @ResponseBody
-@RequestMapping("/Welcome")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class WelcomeController {
 
-    @GetMapping(produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(value = "/Welcome", produces = MediaType.TEXT_HTML_VALUE)
     public String Welcome(@RequestParam(value = "name", required = false) String name){
         String greeting = "Hellow ";
 

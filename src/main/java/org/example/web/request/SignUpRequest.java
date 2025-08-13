@@ -1,7 +1,8 @@
-package org.example.config.jwt;
+package org.example.web.request;
 
 import lombok.*;
 import org.example.data.entity.Phone;
+
 import java.util.List;
 
 
@@ -9,7 +10,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignUpRequest extends AccessRequest{
+public class SignUpRequest extends LoginRequest {
     String name;
     List<Phone> phones;
 }

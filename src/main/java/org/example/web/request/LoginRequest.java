@@ -1,4 +1,4 @@
-package org.example.config.jwt;
+package org.example.web.request;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccessRequest {
+public class LoginRequest {
     String email;
     String password;
 }

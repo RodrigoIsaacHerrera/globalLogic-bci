@@ -1,7 +1,8 @@
 package org.example.web.service;
 
-import org.example.config.jwt.AccessRequest;
-import org.example.config.jwt.SignUpRequest;
+import org.example.config.jwt.JwtService;
+import org.example.web.request.LoginRequest;
+import org.example.web.request.SignUpRequest;
 import org.example.data.entity.Phone;
 import org.example.data.entity.User;
 import org.example.data.mappers.PhoneMapper;
@@ -64,7 +65,7 @@ public class AuthService {
                 .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(), registerRequest.getPhones());
     }
 
-    public LoginResponse login(AccessRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
 

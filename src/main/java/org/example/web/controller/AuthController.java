@@ -2,8 +2,8 @@ package org.example.web.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.config.jwt.AccessRequest;
-import org.example.config.jwt.SignUpRequest;
+import org.example.web.request.LoginRequest;
+import org.example.web.request.SignUpRequest;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
 import org.example.web.service.AuthService;
@@ -19,7 +19,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody AccessRequest loginRequest){
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest){
 
         return ResponseEntity.ok(this.authService.login(loginRequest));
     }
