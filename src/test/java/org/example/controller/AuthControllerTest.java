@@ -106,7 +106,6 @@ class AuthControllerTest {
      */
     @Test
     @DisplayName("Test register(SignUpRequest); then status isOk()")
-    @Tag("MaintainedByDiffblue")
     void testRegister_thenStatusIsOk() throws Exception {
         // Arrange
         UserMapperBuilder passwordResult =

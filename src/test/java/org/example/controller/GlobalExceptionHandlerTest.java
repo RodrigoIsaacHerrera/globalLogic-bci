@@ -36,7 +36,7 @@ class GlobalExceptionHandlerTest {
      */
     @Test
     @DisplayName("Test handleNoHandlerFound(NoHandlerFoundException)")
-    @Tag("MaintainedByDiffblue")
+
     void testHandleNoHandlerFound() {
         // Arrange and Act
         ResponseEntity<ErrorResponse> actualHandleNoHandlerFoundResult =
@@ -61,7 +61,7 @@ class GlobalExceptionHandlerTest {
      */
     @Test
     @DisplayName("Test handleGenericException(Exception)")
-    @Tag("MaintainedByDiffblue")
+
     void testHandleGenericException() {
         // Arrange and Act
         ResponseEntity<ErrorResponse> actualHandleGenericExceptionResult =
@@ -87,7 +87,7 @@ class GlobalExceptionHandlerTest {
      */
     @Test
     @DisplayName("Test handleMethodNotSupported(HttpRequestMethodNotSupportedException)")
-    @Tag("MaintainedByDiffblue")
+
     void testHandleMethodNotSupported() {
         // Arrange and Act
         ResponseEntity<ErrorResponse> actualHandleMethodNotSupportedResult =
@@ -115,7 +115,7 @@ class GlobalExceptionHandlerTest {
      */
     @Test
     @DisplayName("Test handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException)")
-    @Tag("MaintainedByDiffblue")
+
     void testHandleMediaTypeNotSupported() {
         // Arrange and Act
         ResponseEntity<ErrorResponse> actualHandleMediaTypeNotSupportedResult =
@@ -142,7 +142,7 @@ class GlobalExceptionHandlerTest {
      */
     @Test
     @DisplayName("Test handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException)")
-    @Tag("MaintainedByDiffblue")
+
     void testHandleMediaTypeNotAcceptable() {
         // Arrange and Act
         ResponseEntity<ErrorResponse> actualHandleMediaTypeNotAcceptableResult =
@@ -197,7 +197,7 @@ class GlobalExceptionHandlerTest {
      */
     @Test
     @DisplayName("Test handleUsernameNotFoundException(UsernameNotFoundException)")
-    @Tag("MaintainedByDiffblue")
+
     void testHandleUsernameNotFoundException() {
         // Arrange and Act
         ResponseEntity<ErrorResponse> actualHandleUsernameNotFoundExceptionResult =
@@ -221,7 +221,7 @@ class GlobalExceptionHandlerTest {
      */
     @Test
     @DisplayName("Test handleMalformedJwt(MalformedJwtException)")
-    @Tag("MaintainedByDiffblue")
+
     void testHandleMalformedJwt() {
         // Arrange and Act
         ResponseEntity<ErrorResponse> actualHandleMalformedJwtResult =
