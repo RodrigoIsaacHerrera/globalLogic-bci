@@ -39,5 +39,19 @@ gradlew test >> RUN TESTING and Jacoco Collection Report
 TO SEE TEST GO TO "reports" file in project directory open in browser
 document index.html or testsession.html
 
+# ClIENT API
+
+ON APP open import collection and select 
+
+../documentation [httpie-collection-httpie-ejercicio-global-logic.json](documentation/httpie-collection-httpie-ejercicio-global-logic.json)
+
+httPie
+
+
+
 # DOCUMENTATION
 root directory / documentation
+
+../documentation [AuthController_login.png](documentation/AuthController_login.png)
+
+
