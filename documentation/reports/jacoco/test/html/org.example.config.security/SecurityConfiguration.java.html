@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserClientGlBci</a> &gt; <a href="index.source.html" class="el_package">org.example.config.security</a> &gt; <span class="el_source">SecurityConfiguration.java</span></div><h1>SecurityConfiguration.java</h1><pre class="source lang-java linenums">package org.example.config.security;
+
+import lombok.RequiredArgsConstructor;
+import org.example.config.jwt.AuthFilterJWT;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+
+@Configuration
+@EnableWebSecurity
+<span class="nc" id="L17">@RequiredArgsConstructor</span>
+public class SecurityConfiguration {
+
+    private final AuthenticationProvider authenticationProvider;
+    private final AuthFilterJWT jwtAccessFilter;
+    
+    @Bean
+    public SecurityFilterChain securityWebFilterChain(HttpSecurity httpSecurity) throws Exception {
+
+<span class="nc" id="L26">        return httpSecurity.csrf(</span>
+<span class="nc" id="L27">                csrf -&gt; csrf.disable()</span>
+                )
+<span class="nc" id="L29">                .authorizeHttpRequests(authRequest -&gt;</span>
+<span class="nc" id="L30">                        authRequest.antMatchers(&quot;/auth/**&quot;).permitAll()</span>
+<span class="nc" id="L31">                                .antMatchers(&quot;/h2-console/**&quot;).permitAll()</span>
+<span class="nc" id="L32">                .anyRequest().authenticated()</span>
+<span class="nc" id="L33">                ).sessionManagement(session -&gt;</span>
+<span class="nc" id="L34">                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
+<span class="nc" id="L35">                .authenticationProvider(authenticationProvider)</span>
+<span class="nc" id="L36">                .addFilterBefore(jwtAccessFilter, UsernamePasswordAuthenticationFilter.class).build();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
