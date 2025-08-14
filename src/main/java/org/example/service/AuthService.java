@@ -1,6 +1,5 @@
 package org.example.service;
 
-import org.example.config.jwt.JwtService;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.example.data.entity.Phone;

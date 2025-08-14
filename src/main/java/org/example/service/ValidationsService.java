@@ -15,9 +15,7 @@ public class ValidationsService {
         boolean casesResult = mailPattern.matcher(validEmail).matches() && pssPattern.matcher(validPss).matches();
         String mail =  mailPattern.matcher(validEmail).matches()? " VALID EMAIL *** " : " INVALID EMAIL *** ";
         String pass =  pssPattern.matcher(validPss).matches()? " VALID PASSWORD *** " : " INVALID PASSWORD *** " ;
-        System.out.println(mail);
-        System.out.println(pass);
-        StringBuilder sbuilder = new StringBuilder().append(casesResult).append(mail).append(pass);
-        return sbuilder.toString();
+
+        return casesResult + mail + pass;
     }
 }

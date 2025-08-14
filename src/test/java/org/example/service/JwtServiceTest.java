@@ -1,0 +1,56 @@
+package org.example.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.example.data.entity.User;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+@ContextConfiguration(classes = {JwtService.class})
+@ExtendWith(SpringExtension.class)
+class JwtServiceTest {
+    @Autowired
+    private JwtService jwtService;
+
+    /**
+     * Test {@link JwtService#getToken(Map, User)}.
+     *
+     * <ul>
+     *   <li>When {@link User#User()} Email is {@code jane.doe@example.org}.
+     *   <li>Then {@link HashMap#HashMap()} size is four.
+     * </ul>
+     *
+     * <p>Method under test: {@link JwtService#getToken(Map, User)}
+     */
+    @Test
+    @DisplayName(
+            "Test getToken(Map, User); when User() Email is 'jane.doe@example.org'; then HashMap() size is four")
+    void testGetToken_whenUserEmailIsJaneDoeExampleOrg_thenHashMapSizeIsFour() {
+        // Arrange
+        HashMap<String, Object> exClaims = new HashMap<>();
+
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(UUID.randomUUID());
+        user.setName("Name");
+        user.setPassword("iloveyou");
+
+        // Act
+        jwtService.getToken(exClaims, user);
+
+        // Assert
+        assertEquals(4, exClaims.size());
+        assertTrue(exClaims.containsKey("id"));
+        assertTrue((Boolean) exClaims.get("isActive"));
+    }
+
+}
