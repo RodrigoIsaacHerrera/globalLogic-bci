@@ -42,11 +42,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        String detail = "An unexpected error occurred  ";
-        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                detail.concat(HttpStatus.NOT_FOUND.name())
+        final String FALSE = "false";
+        final String MSG = "SQL";
+        String detail = ex.getMessage();
+        if(detail.contains(MSG)) detail = "REQUEST DATA NOT ALLOWED - ";
+        if(detail.contains(FALSE)) detail = detail.replace(FALSE,"");
+        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
+                detail.concat(HttpStatus.BAD_REQUEST.name())
         );
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

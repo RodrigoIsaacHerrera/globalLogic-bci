@@ -12,12 +12,11 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
-
+    //this is a bad practice, only for this time i use.
     final String secret = "586E3272357578982F413F4428472B4B6250655368566B598071733676397924";
 
     public String generateToken(User user) {
@@ -41,13 +40,13 @@ public class JwtService {
                 .signWith(getKey(),SignatureAlgorithm.HS256).compact();
     }
 
-    public String getUsernameFromToken(String token) throws Exception {
+    public String getUsernameFromToken(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) throws Exception {
+    public boolean isTokenValid(String token, UserDetails userDetails) throws JwtException {
         String username = getUsernameFromToken(token);
-        if(!isTokenExpired(token)){throw new JwtException(ExpiredJwtException.class.getName());
+        if(isTokenExpired(token)){throw new JwtException(ExpiredJwtException.class.getName());
         }
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
@@ -67,7 +66,7 @@ public class JwtService {
     }
 
 
-    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) throws Exception {
+    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) throws MalformedJwtException {
         final Claims claims;
         try{ claims = getAllClaims(token);} catch (MalformedJwtException e) {
             throw new MalformedJwtException(" Not Allowed Credentials");
@@ -76,11 +75,11 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    private Date getExpiration(String token) throws Exception {
+    private Date getExpiration(String token) {
         return getClaim(token, Claims::getExpiration);
     }
 
-    private boolean isTokenExpired(String token) throws Exception {
+    private boolean isTokenExpired(String token) {
 
         return getExpiration(token).before(new Date());
     }

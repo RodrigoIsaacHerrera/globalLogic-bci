@@ -51,6 +51,7 @@ public class AuthService {
         signUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         if (!usersRepository.existsById(userId)) {
             usersRepository.save(signUser);
+            signUser.setPassword(registerRequest.getPassword());
         } else {
             throw new DuplicateKeyException(" Operation Fail. DB reject operation");
         }
@@ -74,6 +75,7 @@ public class AuthService {
             User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
             phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
             loginResponse = assemblerObjectLogin(user, phones);
+            loginResponse.setPassword(loginRequest.getPassword());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
