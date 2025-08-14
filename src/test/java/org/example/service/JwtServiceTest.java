@@ -14,17 +14,13 @@ import io.jsonwebtoken.security.SignatureException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 import org.example.data.entity.User;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -105,99 +101,4 @@ class JwtServiceTest {
         assertTrue((Boolean) exClaims.get("isActive"));
     }
 
-    /**
-     * Test {@link JwtService#getUsernameFromToken(String)}.
-     *
-     * <ul>
-     *   <li>When {@code ABC123}.
-     * </ul>
-     *
-     * <p>Method under test: {@link JwtService#getUsernameFromToken(String)}
-     */
-    @Test
-    @DisplayName("Test getUsernameFromToken(String); when 'ABC123'")
-    @Disabled("TODO: Complete this test")
-    void testGetUsernameFromToken_whenAbc123() {
-        // TODO: Diffblue Cover was only able to create a partial test for this method:
-        //   Reason: No inputs found that don't throw a trivial exception.
-        //   Diffblue Cover tried to run the arrange/act section, but the method under
-        //   test threw
-        //   io.jsonwebtoken.MalformedJwtException: JWT strings must contain exactly 2 period
-        // characters. Found: 0
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:296)
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:550)
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parseClaimsJws(DefaultJwtParser.java:610)
-        //       at io.jsonwebtoken.impl.ImmutableJwtParser.parseClaimsJws(ImmutableJwtParser.java:173)
-        //       at org.example.service.JwtService.getAllClaims(JwtService.java:59)
-        //       at org.example.service.JwtService.getClaim(JwtService.java:71)
-        //       at org.example.service.JwtService.getUsernameFromToken(JwtService.java:46)
-        //   See https://diff.blue/R013 to resolve this issue.
-
-        // Arrange and Act
-        jwtService.getUsernameFromToken("ABC123");
-    }
-
-    /**
-     * Test {@link JwtService#isTokenValid(String, UserDetails)}.
-     *
-     * <ul>
-     *   <li>When {@code ABC123}.
-     * </ul>
-     *
-     * <p>Method under test: {@link JwtService#isTokenValid(String, UserDetails)}
-     */
-    @Test
-    @DisplayName("Test isTokenValid(String, UserDetails); when 'ABC123'")
-    @Disabled("TODO: Complete this test")
-    void testIsTokenValid_whenAbc123() {
-        // TODO: Diffblue Cover was only able to create a partial test for this method:
-        //   Reason: No inputs found that don't throw a trivial exception.
-        //   Diffblue Cover tried to run the arrange/act section, but the method under
-        //   test threw
-        //   io.jsonwebtoken.MalformedJwtException: JWT strings must contain exactly 2 period
-        // characters. Found: 0
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:296)
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:550)
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parseClaimsJws(DefaultJwtParser.java:610)
-        //       at io.jsonwebtoken.impl.ImmutableJwtParser.parseClaimsJws(ImmutableJwtParser.java:173)
-        //       at org.example.service.JwtService.getAllClaims(JwtService.java:59)
-        //       at org.example.service.JwtService.getClaim(JwtService.java:71)
-        //       at org.example.service.JwtService.getUsernameFromToken(JwtService.java:46)
-        //       at org.example.service.JwtService.isTokenValid(JwtService.java:50)
-        //   See https://diff.blue/R013 to resolve this issue.
-
-        // Arrange and Act
-        jwtService.isTokenValid("ABC123", new User());
-    }
-
-    /**
-     * Test {@link JwtService#getClaim(String, Function)}.
-     *
-     * <ul>
-     *   <li>When {@code ABC123}.
-     * </ul>
-     *
-     * <p>Method under test: {@link JwtService#getClaim(String, Function)}
-     */
-    @Test
-    @DisplayName("Test getClaim(String, Function); when 'ABC123'")
-    @Disabled("TODO: Complete this test")
-    void testGetClaim_whenAbc123() {
-        // TODO: Diffblue Cover was only able to create a partial test for this method:
-        //   Reason: No inputs found that don't throw a trivial exception.
-        //   Diffblue Cover tried to run the arrange/act section, but the method under
-        //   test threw
-        //   io.jsonwebtoken.MalformedJwtException: JWT strings must contain exactly 2 period
-        // characters. Found: 0
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:296)
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:550)
-        //       at io.jsonwebtoken.impl.DefaultJwtParser.parseClaimsJws(DefaultJwtParser.java:610)
-        //       at io.jsonwebtoken.impl.ImmutableJwtParser.parseClaimsJws(ImmutableJwtParser.java:173)
-        //       at org.example.service.JwtService.getAllClaims(JwtService.java:59)
-        //       at org.example.service.JwtService.getClaim(JwtService.java:71)
-        //   See https://diff.blue/R013 to resolve this issue.
-
-        // Arrange and Act
-        jwtService.<Object>getClaim("ABC123", mock(Function.class));
-    }
 }
