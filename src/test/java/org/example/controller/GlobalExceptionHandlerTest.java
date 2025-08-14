@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -236,4 +237,28 @@ class GlobalExceptionHandlerTest {
         assertTrue(actualHandleMalformedJwtResult.hasBody());
         assertTrue(actualHandleMalformedJwtResult.getHeaders().isEmpty());
     }
+
+    /**
+     * Test {@link GlobalExceptionHandler#handleDuplicateKeyException(DuplicateKeyException)}.
+     *
+     * <p>Method under test: {@link GlobalExceptionHandler#handleDuplicateKeyException(DuplicateKeyException)}
+     */
+    @Test
+    @DisplayName("Test handleDuplicateKeyException(DuplicateKeyException)")
+
+    void testHandlehandleDuplicateKeyException() {
+        // Arrange and Act
+        ResponseEntity<ErrorResponse> actualHandleDuplicateKeyException =
+                globalExceptionHandler.handleDuplicateKeyException(new DuplicateKeyException(" Operation Fail. DB reject operation"));
+
+        // Assert
+        ErrorResponse body = actualHandleDuplicateKeyException.getBody();
+        assertEquals("An unexpected DB error occurred  NOT_ACCEPTABLE Operation Fail. DB reject operation", body.getDetail());
+        assertEquals(406, body.getCode());
+        assertEquals(406, actualHandleDuplicateKeyException.getStatusCodeValue());
+        assertEquals(HttpStatus.NOT_ACCEPTABLE, actualHandleDuplicateKeyException.getStatusCode());
+        assertTrue(actualHandleDuplicateKeyException.hasBody());
+        assertTrue(actualHandleDuplicateKeyException.getHeaders().isEmpty());
+    }
+
 }
