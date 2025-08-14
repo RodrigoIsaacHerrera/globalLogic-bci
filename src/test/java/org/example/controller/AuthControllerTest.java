@@ -15,7 +15,6 @@ import org.example.web.reponse.SignUpResponse;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -96,17 +95,17 @@ class AuthControllerTest {
     }
 
     /**
-     * Test {@link AuthController#register(SignUpRequest)}.
+     * Test {@link AuthController#signUp(SignUpRequest)}.
      *
      * <ul>
      *   <li>Then status {@link StatusResultMatchers#isOk()}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthController#register(SignUpRequest)}
+     * <p>Method under test: {@link AuthController#signUp(SignUpRequest)}
      */
     @Test
     @DisplayName("Test register(SignUpRequest); then status isOk()")
-    void testRegister_thenStatusIsOk() throws Exception {
+    void testSignUp_thenStatusIsOk() throws Exception {
         // Arrange
         UserMapperBuilder passwordResult =
                 UserMapper.builder()
