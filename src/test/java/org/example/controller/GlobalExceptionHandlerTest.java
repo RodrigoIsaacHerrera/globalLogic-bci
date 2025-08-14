@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.jsonwebtoken.MalformedJwtException;
 import org.example.shared.ErrorResponse;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +47,7 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         ErrorResponse body = actualHandleNoHandlerFoundResult.getBody();
+        Assertions.assertNotNull(body);
         assertEquals("The requested resource: NOT_FOUND", body.getDetail());
         assertEquals(404, body.getCode());
         assertEquals(404, actualHandleNoHandlerFoundResult.getStatusCodeValue());
@@ -70,7 +71,8 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         ErrorResponse body = actualHandleGenericExceptionResult.getBody();
-        assertEquals("An unexpected error occurred  NOT_FOUNDnull", body.getDetail());
+        Assertions.assertNotNull(body);
+        assertEquals("An unexpected error occurred  NOT_FOUND", body.getDetail());
         assertEquals(500, body.getCode());
         assertEquals(500, actualHandleGenericExceptionResult.getStatusCodeValue());
         assertEquals(
@@ -97,6 +99,7 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         ErrorResponse body = actualHandleMethodNotSupportedResult.getBody();
+        Assertions.assertNotNull(body);
         assertEquals(
                 "The HTTP verb is not supported for this endpoint. METHOD_NOT_ALLOWED", body.getDetail());
         assertEquals(405, body.getCode());
@@ -125,6 +128,7 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         ErrorResponse body = actualHandleMediaTypeNotSupportedResult.getBody();
+        Assertions.assertNotNull(body);
         assertEquals("The media type is not supported. UNSUPPORTED_MEDIA_TYPE", body.getDetail());
         assertEquals(415, body.getCode());
         assertEquals(415, actualHandleMediaTypeNotSupportedResult.getStatusCodeValue());
@@ -152,6 +156,7 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         ErrorResponse body = actualHandleMediaTypeNotAcceptableResult.getBody();
+        Assertions.assertNotNull(body);
         assertEquals("The media type is not acceptable. NOT_ACCEPTABLE", body.getDetail());
         assertEquals(406, body.getCode());
         assertEquals(406, actualHandleMediaTypeNotAcceptableResult.getStatusCodeValue());

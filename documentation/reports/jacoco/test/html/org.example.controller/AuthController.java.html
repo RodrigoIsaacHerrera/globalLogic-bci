@@ -31,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping(value = &quot;/sign-up&quot;)
-    public ResponseEntity&lt;SignUpResponse&gt; register(@RequestBody SignUpRequest registerRequest) {
+    public ResponseEntity&lt;SignUpResponse&gt; signUp(@RequestBody SignUpRequest registerRequest) {
 <span class="fc" id="L35">        String evaluation = validationsService.validationParams(registerRequest.getEmail(),</span>
 <span class="fc" id="L36">                registerRequest.getPassword());</span>
 <span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (evaluation.contains(&quot;false&quot;)) {</span>

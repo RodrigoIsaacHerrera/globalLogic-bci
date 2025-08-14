@@ -3,6 +3,7 @@
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.example.shared.ErrorResponse;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -19,81 +20,90 @@ import java.time.LocalDateTime;
 
 @ControllerAdvice
 @RestControllerAdvice
-<span class="fc" id="L22">public class GlobalExceptionHandler {</span>
+<span class="fc" id="L23">public class GlobalExceptionHandler {</span>
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleNoHandlerFound(NoHandlerFoundException ex) {
-<span class="fc" id="L26">        String detail = &quot;The requested resource: &quot;;</span>
-<span class="fc" id="L27">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),</span>
-<span class="fc" id="L28">                detail.concat(HttpStatus.NOT_FOUND.name())</span>
+<span class="fc" id="L27">        String detail = &quot;The requested resource: &quot;;</span>
+<span class="fc" id="L28">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),</span>
+<span class="fc" id="L29">                detail.concat(HttpStatus.NOT_FOUND.name())</span>
         );
-<span class="fc" id="L30">        return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_FOUND);</span>
+<span class="fc" id="L31">        return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_FOUND);</span>
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleDuplicateKeyException(DuplicateKeyException ex) {
+<span class="fc" id="L36">        String detail = &quot;An unexpected DB error occurred  &quot;;</span>
+<span class="fc" id="L37">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.value(),</span>
+<span class="fc" id="L38">                detail.concat(HttpStatus.NOT_ACCEPTABLE.name()+ex.getMessage())</span>
+        );
+<span class="fc" id="L40">        return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_ACCEPTABLE);</span>
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleGenericException(Exception ex) {
-<span class="fc" id="L35">        String detail = &quot;An unexpected error occurred  &quot;;</span>
-<span class="fc" id="L36">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(),</span>
-<span class="fc" id="L37">                detail.concat(HttpStatus.NOT_FOUND.name()+ex.getMessage())</span>
+<span class="fc" id="L45">        String detail = &quot;An unexpected error occurred  &quot;;</span>
+<span class="fc" id="L46">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(),</span>
+<span class="fc" id="L47">                detail.concat(HttpStatus.NOT_FOUND.name())</span>
         );
-<span class="fc" id="L39">        return new ResponseEntity&lt;&gt;(error, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+<span class="fc" id="L49">        return new ResponseEntity&lt;&gt;(error, HttpStatus.INTERNAL_SERVER_ERROR);</span>
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
-<span class="fc" id="L44">        String detail = &quot;The HTTP verb is not supported for this endpoint. &quot;;</span>
-<span class="fc" id="L45">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.METHOD_NOT_ALLOWED.value(),</span>
-<span class="fc" id="L46">                detail.concat(HttpStatus.METHOD_NOT_ALLOWED.name()));</span>
-<span class="fc" id="L47">        return new ResponseEntity&lt;&gt;(error, HttpStatus.METHOD_NOT_ALLOWED);</span>
+<span class="fc" id="L54">        String detail = &quot;The HTTP verb is not supported for this endpoint. &quot;;</span>
+<span class="fc" id="L55">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.METHOD_NOT_ALLOWED.value(),</span>
+<span class="fc" id="L56">                detail.concat(HttpStatus.METHOD_NOT_ALLOWED.name()));</span>
+<span class="fc" id="L57">        return new ResponseEntity&lt;&gt;(error, HttpStatus.METHOD_NOT_ALLOWED);</span>
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
-<span class="fc" id="L52">        String detail = &quot;The media type is not supported. &quot;;</span>
-<span class="fc" id="L53">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),</span>
-<span class="fc" id="L54">                detail.concat(HttpStatus.UNSUPPORTED_MEDIA_TYPE.name()));</span>
-<span class="fc" id="L55">        return new ResponseEntity&lt;&gt;(error, HttpStatus.UNSUPPORTED_MEDIA_TYPE);</span>
+<span class="fc" id="L62">        String detail = &quot;The media type is not supported. &quot;;</span>
+<span class="fc" id="L63">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),</span>
+<span class="fc" id="L64">                detail.concat(HttpStatus.UNSUPPORTED_MEDIA_TYPE.name()));</span>
+<span class="fc" id="L65">        return new ResponseEntity&lt;&gt;(error, HttpStatus.UNSUPPORTED_MEDIA_TYPE);</span>
     }
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex) {
-<span class="fc" id="L60">        String detail = &quot;The media type is not acceptable. &quot;;</span>
-<span class="fc" id="L61">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.value(),</span>
-<span class="fc" id="L62">                detail.concat(HttpStatus.NOT_ACCEPTABLE.name()));</span>
-<span class="fc" id="L63">        return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_ACCEPTABLE);</span>
+<span class="fc" id="L70">        String detail = &quot;The media type is not acceptable. &quot;;</span>
+<span class="fc" id="L71">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.value(),</span>
+<span class="fc" id="L72">                detail.concat(HttpStatus.NOT_ACCEPTABLE.name()));</span>
+<span class="fc" id="L73">        return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_ACCEPTABLE);</span>
     }
 
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleAuthenticationCredentialsNotFoundException(
             AuthenticationCredentialsNotFoundException ex) {
-<span class="fc" id="L69">        String detail = &quot;Error authentication . &quot;;</span>
-<span class="fc" id="L70">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.FORBIDDEN.value(),</span>
-<span class="fc" id="L71">                detail.concat(HttpStatus.FORBIDDEN.name()));</span>
-<span class="fc" id="L72">        return new ResponseEntity&lt;&gt;(error, HttpStatus.FORBIDDEN);</span>
+<span class="fc" id="L79">        String detail = &quot;Error authentication . &quot;;</span>
+<span class="fc" id="L80">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.FORBIDDEN.value(),</span>
+<span class="fc" id="L81">                detail.concat(HttpStatus.FORBIDDEN.name()));</span>
+<span class="fc" id="L82">        return new ResponseEntity&lt;&gt;(error, HttpStatus.FORBIDDEN);</span>
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUsernameNotFoundException(UsernameNotFoundException ex) {
-<span class="fc" id="L77">        String detail = &quot;Error authentication . &quot;;</span>
-<span class="fc" id="L78">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),</span>
-<span class="fc" id="L79">                detail.concat(ex.getMessage()));</span>
-<span class="fc" id="L80">        return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_FOUND);</span>
+<span class="fc" id="L87">        String detail = &quot;Error authentication . &quot;;</span>
+<span class="fc" id="L88">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),</span>
+<span class="fc" id="L89">                detail.concat(ex.getMessage()));</span>
+<span class="fc" id="L90">        return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_FOUND);</span>
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleExpiredJwt(ExpiredJwtException ex) {
-<span class="nc" id="L85">        String detail = &quot;Error authentication TOKEN_EXPIRED. &quot;;</span>
-<span class="nc" id="L86">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),</span>
-<span class="nc" id="L87">                HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));</span>
-<span class="nc" id="L88">        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);</span>
+<span class="nc" id="L95">        String detail = &quot;Error authentication TOKEN_EXPIRED. &quot;;</span>
+<span class="nc" id="L96">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),</span>
+<span class="nc" id="L97">                HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));</span>
+<span class="nc" id="L98">        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);</span>
     }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleMalformedJwt(MalformedJwtException ex) {
-<span class="fc" id="L93">        String detail = &quot;Error authentication MALFORMED_TOKEN. &quot;;</span>
-<span class="fc" id="L94">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),</span>
-<span class="fc" id="L95">                HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));</span>
-<span class="fc" id="L96">        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);</span>
+<span class="fc" id="L103">        String detail = &quot;Error authentication MALFORMED_TOKEN. &quot;;</span>
+<span class="fc" id="L104">        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),</span>
+<span class="fc" id="L105">                HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));</span>
+<span class="fc" id="L106">        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

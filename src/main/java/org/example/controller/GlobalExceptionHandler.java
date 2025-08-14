@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         String detail = "An unexpected error occurred  ";
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                detail.concat(HttpStatus.NOT_FOUND.name()+ex.getMessage())
+                detail.concat(HttpStatus.NOT_FOUND.name())
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

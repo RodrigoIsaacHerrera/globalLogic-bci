@@ -18,6 +18,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.jsonwebtoken.JwtException;
 import org.apache.catalina.connector.Response;
 import org.example.service.JwtService;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +58,7 @@ class AuthFilterJWTTest {
      */
     @Test
     @DisplayName("Test doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain)")
-    void testDoFilterInternal() throws IOException, ServletException {
+    void testDoFilterInternal() throws Exception {
         // Arrange
         when(jwtService.getUsernameFromToken(Mockito.<String>any()))
                 .thenThrow(new AuthenticationCredentialsNotFoundException("Authorization"));
@@ -145,7 +146,7 @@ class AuthFilterJWTTest {
     @DisplayName(
             "Test doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain); given JwtService getUsernameFromToken(String) return 'null'")
     void testDoFilterInternal_givenJwtServiceGetUsernameFromTokenReturnNull()
-            throws IOException, ServletException {
+            throws Exception {
         // Arrange
         when(jwtService.getUsernameFromToken(Mockito.<String>any())).thenReturn(null);
         DefaultMultipartHttpServletRequest request = mock(DefaultMultipartHttpServletRequest.class);
@@ -181,7 +182,7 @@ class AuthFilterJWTTest {
     @DisplayName(
             "Test doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain); given JwtService getUsernameFromToken(String) throw RuntimeException()")
     void testDoFilterInternal_givenJwtServiceGetUsernameFromTokenThrowRuntimeException()
-            throws IOException, ServletException {
+            throws Exception {
         // Arrange
         when(jwtService.getUsernameFromToken(Mockito.<String>any())).thenThrow(new RuntimeException());
         DefaultMultipartHttpServletRequest request = mock(DefaultMultipartHttpServletRequest.class);
@@ -209,7 +210,7 @@ class AuthFilterJWTTest {
     @Test
     @DisplayName(
             "Test doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain); then calls isTokenValid(String, UserDetails)")
-    void testDoFilterInternal_thenCallsIsTokenValid() throws IOException, ServletException {
+    void testDoFilterInternal_thenCallsIsTokenValid() throws Exception {
         // Arrange
         when(jwtService.isTokenValid(Mockito.<String>any(), Mockito.<UserDetails>any()))
                 .thenThrow(new AuthenticationCredentialsNotFoundException("Authorization"));
@@ -219,7 +220,7 @@ class AuthFilterJWTTest {
 
         // Act and Assert
         assertThrows(
-                AuthenticationCredentialsNotFoundException.class,
+                JwtException.class,
                 () -> authFilterJWT.doFilterInternal(request, new Response(), mock(FilterChain.class)));
         verify(request).getHeader("Authorization");
         verify(jwtService).getUsernameFromToken("");

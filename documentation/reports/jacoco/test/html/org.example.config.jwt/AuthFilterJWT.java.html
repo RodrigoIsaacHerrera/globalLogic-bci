@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthFilterJWT.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserClientGlBci</a> &gt; <a href="index.source.html" class="el_package">org.example.config.jwt</a> &gt; <span class="el_source">AuthFilterJWT.java</span></div><h1>AuthFilterJWT.java</h1><pre class="source lang-java linenums">package org.example.config.jwt;
 
+import io.jsonwebtoken.JwtException;
 import org.example.service.JwtService;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,47 +26,51 @@ public class AuthFilterJWT extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-<span class="fc" id="L28">    public AuthFilterJWT(JwtService jwtService, UserDetailsService userDetailsService) {</span>
-<span class="fc" id="L29">        this.jwtService = jwtService;</span>
-<span class="fc" id="L30">        this.userDetailsService = userDetailsService;</span>
-<span class="fc" id="L31">    }</span>
+<span class="fc" id="L29">    public AuthFilterJWT(JwtService jwtService, UserDetailsService userDetailsService) {</span>
+<span class="fc" id="L30">        this.jwtService = jwtService;</span>
+<span class="fc" id="L31">        this.userDetailsService = userDetailsService;</span>
+<span class="fc" id="L32">    }</span>
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-<span class="fc" id="L36">        final String token = getTokenRequest(request);</span>
+<span class="fc" id="L37">        final String token = getTokenRequest(request);</span>
         final String username;
 
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        if(token == null){</span>
-<span class="fc" id="L40">            filterChain.doFilter(request,response);</span>
-<span class="fc" id="L41">            return;</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if(token == null){</span>
+<span class="fc" id="L41">            filterChain.doFilter(request,response);</span>
+<span class="fc" id="L42">            return;</span>
         }
         try {
-<span class="fc" id="L44">            username = jwtService.getUsernameFromToken(token);</span>
-<span class="fc" id="L45">        } catch (AuthenticationCredentialsNotFoundException e) {</span>
-<span class="fc" id="L46">            throw new RuntimeException(e);</span>
-<span class="fc" id="L47">        }</span>
-<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        if (username !=null &amp;&amp; SecurityContextHolder.getContext().getAuthentication()==null) {</span>
-<span class="fc" id="L49">            UserDetails userDetails = userDetailsService.loadUserByUsername(username);</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">            if(jwtService.isTokenValid(token, userDetails)){</span>
-<span class="nc" id="L51">                UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(</span>
-<span class="nc" id="L52">                        userDetails, null, userDetails.getAuthorities());</span>
+<span class="fc" id="L45">            username = jwtService.getUsernameFromToken(token);</span>
+<span class="fc" id="L46">        } catch (Exception e) {</span>
+<span class="fc" id="L47">            throw new AuthenticationCredentialsNotFoundException(&quot; Bad Operation &quot;);</span>
+<span class="fc" id="L48">        }</span>
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">        if (username !=null &amp;&amp; SecurityContextHolder.getContext().getAuthentication()==null) {</span>
+<span class="fc" id="L50">            UserDetails userDetails = userDetailsService.loadUserByUsername(username);</span>
+            try {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                if(jwtService.isTokenValid(token, userDetails)){</span>
+<span class="nc" id="L53">                    UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(</span>
+<span class="nc" id="L54">                            userDetails, null, userDetails.getAuthorities());</span>
 
-<span class="nc" id="L54">                permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));</span>
-            }
+<span class="nc" id="L56">                    permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));</span>
+                }
+<span class="fc" id="L58">            } catch (Exception e) {</span>
+<span class="fc" id="L59">                throw new JwtException(&quot; Bad Token &quot;);</span>
+<span class="nc" id="L60">            }</span>
         }
 
-<span class="fc" id="L58">        filterChain.doFilter(request,response);</span>
+<span class="fc" id="L63">        filterChain.doFilter(request,response);</span>
 
-<span class="fc" id="L60">    }</span>
+<span class="fc" id="L65">    }</span>
 
     private String getTokenRequest(HttpServletRequest request) {
-<span class="fc" id="L63">        final String authHeader = request.getHeader(AUTHORIZATION);</span>
-<span class="fc bfc" id="L64" title="All 4 branches covered.">        if(StringUtils.hasText(authHeader) &amp;&amp; authHeader.startsWith(&quot;Bearer &quot;)){</span>
+<span class="fc" id="L68">        final String authHeader = request.getHeader(AUTHORIZATION);</span>
+<span class="fc bfc" id="L69" title="All 4 branches covered.">        if(StringUtils.hasText(authHeader) &amp;&amp; authHeader.startsWith(&quot;Bearer &quot;)){</span>
 
-<span class="fc" id="L66">                return authHeader.substring(7);</span>
+<span class="fc" id="L71">                return authHeader.substring(7);</span>
         }
-<span class="fc" id="L68">        return null;</span>
+<span class="fc" id="L73">        return null;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

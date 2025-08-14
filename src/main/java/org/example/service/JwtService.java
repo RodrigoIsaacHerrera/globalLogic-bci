@@ -1,8 +1,6 @@
 package org.example.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -14,6 +12,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.function.Function;
 
 @Service
@@ -42,12 +41,14 @@ public class JwtService {
                 .signWith(getKey(),SignatureAlgorithm.HS256).compact();
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getUsernameFromToken(String token) throws Exception {
         return getClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails) throws Exception {
         String username = getUsernameFromToken(token);
+        if(!isTokenExpired(token)){throw new JwtException(ExpiredJwtException.class.getName());
+        }
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
@@ -66,20 +67,21 @@ public class JwtService {
     }
 
 
-    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) throws Exception {
         final Claims claims;
-        try{ claims = getAllClaims(token);} catch (SignatureException e) {
-            throw new RuntimeException(e);
+        try{ claims = getAllClaims(token);} catch (MalformedJwtException e) {
+            throw new MalformedJwtException(" Not Allowed Credentials");
         }
 
         return claimsResolver.apply(claims);
     }
 
-    private Date getExpiration(String token) {
+    private Date getExpiration(String token) throws Exception {
         return getClaim(token, Claims::getExpiration);
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) throws Exception {
+
         return getExpiration(token).before(new Date());
     }
 
