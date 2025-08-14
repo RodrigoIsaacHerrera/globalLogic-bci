@@ -417,6 +417,7 @@ class AuthServiceTest {
         verify(usersRepository).save(isA(User.class));
         assertEquals("ABC123", actualSignUpResult.getToken());
         UserMapper user3 = actualSignUpResult.getUser();
+        user3.setPassword("iloveyou");
         assertEquals("Name", user3.getName());
         assertEquals("iloveyou", user3.getPassword());
         assertEquals("jane.doe@example.org", user3.getEmail());

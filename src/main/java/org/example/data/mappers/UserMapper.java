@@ -6,6 +6,7 @@ import java.util.List;
 
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 public class UserMapper {
 

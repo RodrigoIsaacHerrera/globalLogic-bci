@@ -11,7 +11,6 @@ import org.example.data.repository.UsersRepository;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,24 +32,25 @@ public class AuthService {
     private final JwtService jwtService;
 
     public AuthService(PasswordEncoder passwordEncoder, UsersRepository usersRepository, PhonesRepository phonesRepository,
-<span class="fc" id="L36">                       AuthenticationManager authManager, JwtService jwtService) {</span>
-<span class="fc" id="L37">        this.passwordEncoder = passwordEncoder;</span>
-<span class="fc" id="L38">        this.usersRepository = usersRepository;</span>
-<span class="fc" id="L39">        this.phonesRepository = phonesRepository;</span>
-<span class="fc" id="L40">        this.authManager = authManager;</span>
-<span class="fc" id="L41">        this.jwtService = jwtService;</span>
-<span class="fc" id="L42">    }</span>
+<span class="fc" id="L35">                       AuthenticationManager authManager, JwtService jwtService) {</span>
+<span class="fc" id="L36">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L37">        this.usersRepository = usersRepository;</span>
+<span class="fc" id="L38">        this.phonesRepository = phonesRepository;</span>
+<span class="fc" id="L39">        this.authManager = authManager;</span>
+<span class="fc" id="L40">        this.jwtService = jwtService;</span>
+<span class="fc" id="L41">    }</span>
 
     public SignUpResponse signUp(SignUpRequest registerRequest) throws DuplicateKeyException {
 
-<span class="fc" id="L46">        UUID userId = UUID.randomUUID();</span>
-<span class="fc" id="L47">        User signUser = new User();</span>
-<span class="fc" id="L48">        signUser.setId(userId);</span>
-<span class="fc" id="L49">        signUser.setName(registerRequest.getName());</span>
-<span class="fc" id="L50">        signUser.setEmail(registerRequest.getEmail());</span>
-<span class="fc" id="L51">        signUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));</span>
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (!usersRepository.existsById(userId)) {</span>
-<span class="fc" id="L53">            usersRepository.save(signUser);</span>
+<span class="fc" id="L45">        UUID userId = UUID.randomUUID();</span>
+<span class="fc" id="L46">        User signUser = new User();</span>
+<span class="fc" id="L47">        signUser.setId(userId);</span>
+<span class="fc" id="L48">        signUser.setName(registerRequest.getName());</span>
+<span class="fc" id="L49">        signUser.setEmail(registerRequest.getEmail());</span>
+<span class="fc" id="L50">        signUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (!usersRepository.existsById(userId)) {</span>
+<span class="fc" id="L52">            usersRepository.save(signUser);</span>
+<span class="fc" id="L53">            signUser.setPassword(registerRequest.getPassword());</span>
         } else {
 <span class="fc" id="L55">            throw new DuplicateKeyException(&quot; Operation Fail. DB reject operation&quot;);</span>
         }
@@ -59,9 +59,9 @@ public class AuthService {
 <span class="fc" id="L59">                    phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()))</span>
             );
         }
-
-<span class="fc" id="L63">        return assemblerObjectSignUp(usersRepository</span>
-<span class="fc" id="L64">                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(), registerRequest.getPhones());</span>
+<span class="fc" id="L62">        return assemblerObjectSignUp(usersRepository</span>
+<span class="fc" id="L63">                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),</span>
+<span class="fc" id="L64">                registerRequest.getPhones(), registerRequest);</span>
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
@@ -70,52 +70,58 @@ public class AuthService {
 
         try {
 <span class="fc" id="L72">            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),</span>
-<span class="fc" id="L73">                    loginRequest.getPassword()));//considerar que se debe authenticar usando el UUID</span>
+<span class="fc" id="L73">                    loginRequest.getPassword()));</span>
 <span class="fc" id="L74">            User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();</span>
 <span class="pc" id="L75">            phonesRepository.findAllByUserId(user.getId()).forEach(phone -&gt; phones.add((Phone) phone));</span>
-<span class="fc" id="L76">            loginResponse = assemblerObjectLogin(user, phones);</span>
-<span class="fc" id="L77">        } catch (Exception e) {</span>
-<span class="fc" id="L78">            throw new RuntimeException(e);</span>
-<span class="fc" id="L79">        }</span>
+<span class="fc" id="L76">            loginResponse = assemblerObjectLogin(user, phones, loginRequest);</span>
 
 
-<span class="fc" id="L82">        return loginResponse;</span>
+<span class="fc" id="L79">        } catch (Exception e) {</span>
+<span class="fc" id="L80">            throw new RuntimeException(e);</span>
+<span class="fc" id="L81">        }</span>
+
+
+<span class="fc" id="L84">        return loginResponse;</span>
     }
 
-    private SignUpResponse assemblerObjectSignUp(User userR, List&lt;Phone&gt; phones) {
+    private SignUpResponse assemblerObjectSignUp(User userR, List&lt;Phone&gt; phones, SignUpRequest signRequest) {
         String token;
+        UserMapper userMapper;
         try {
-<span class="fc" id="L88">            token = jwtService.generateToken(userR);</span>
-<span class="fc" id="L89">        } catch (Exception e) {</span>
-<span class="fc" id="L90">            throw new RuntimeException(e);</span>
-<span class="fc" id="L91">        }</span>
-<span class="fc" id="L92">        return new SignUpResponse(userMapperMethod(userR, phones), userR.getId().toString(),</span>
-<span class="fc" id="L93">                new Date(System.currentTimeMillis()).toString(), new Date(System.currentTimeMillis()).toString(),</span>
-<span class="fc" id="L94">                token, userR.isCredentialsNonExpired());</span>
+<span class="fc" id="L91">            token = jwtService.generateToken(userR);</span>
+<span class="fc" id="L92">            userMapper = userMapperMethod(userR, phones);</span>
+<span class="fc" id="L93">            userMapper.setPassword(signRequest.getPassword());</span>
+<span class="fc" id="L94">        } catch (Exception e) {</span>
+<span class="fc" id="L95">            throw new RuntimeException(e);</span>
+<span class="fc" id="L96">        }</span>
+<span class="fc" id="L97">        return new SignUpResponse(userMapper, userR.getId().toString(),</span>
+<span class="fc" id="L98">                new Date(System.currentTimeMillis()).toString(), new Date(System.currentTimeMillis()).toString(),</span>
+<span class="fc" id="L99">                token, userR.isCredentialsNonExpired());</span>
     }
 
-    private LoginResponse assemblerObjectLogin(User userL, List&lt;Phone&gt; phones) {
-<span class="fc" id="L98">        String token = jwtService.generateToken(userL);</span>
-<span class="fc" id="L99">        UserMapper user = userMapperMethod(userL, phones);</span>
-<span class="fc" id="L100">        return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),</span>
-<span class="fc" id="L101">                new Date(System.currentTimeMillis()).toString(),</span>
-<span class="fc" id="L102">                token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());</span>
+    private LoginResponse assemblerObjectLogin(User userL, List&lt;Phone&gt; phones, LoginRequest loginRequest) {
+<span class="fc" id="L103">        String token = jwtService.generateToken(userL);</span>
+<span class="fc" id="L104">        UserMapper user = userMapperMethod(userL, phones);</span>
+<span class="fc" id="L105">        user.setPassword(loginRequest.getPassword());</span>
+<span class="fc" id="L106">        return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),</span>
+<span class="fc" id="L107">                new Date(System.currentTimeMillis()).toString(),</span>
+<span class="fc" id="L108">                token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());</span>
     }
 
     private UserMapper userMapperMethod(User userM, List&lt;Phone&gt; phones) {
 
         UserMapper user;
-<span class="fc" id="L108">        List&lt;PhoneMapper&gt; phoneMappers = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L114">        List&lt;PhoneMapper&gt; phoneMappers = new ArrayList&lt;&gt;();</span>
         try {
-<span class="fc" id="L110">            phones.forEach(phone -&gt;</span>
-<span class="fc" id="L111">                    phoneMappers.add(new PhoneMapper(phone.getNumber(), phone.getCitycode(), phone.getCountrycode())));</span>
-<span class="fc" id="L112">            user = UserMapper.builder().id(userM.getId().toString()).name(userM.getName()).email(userM.getEmail())</span>
-<span class="fc" id="L113">                    .password(userM.getPassword())</span>
-<span class="fc" id="L114">                    .phones(phoneMappers).build();</span>
-<span class="fc" id="L115">        } catch (Exception e) {</span>
-<span class="fc" id="L116">            throw new RuntimeException(e);</span>
-<span class="fc" id="L117">        }</span>
-<span class="fc" id="L118">        return user;</span>
+<span class="fc" id="L116">            phones.forEach(phone -&gt;</span>
+<span class="fc" id="L117">                    phoneMappers.add(new PhoneMapper(phone.getNumber(), phone.getCitycode(), phone.getCountrycode())));</span>
+<span class="fc" id="L118">            user = UserMapper.builder().id(userM.getId().toString()).name(userM.getName()).email(userM.getEmail())</span>
+<span class="fc" id="L119">                    .password(userM.getPassword())</span>
+<span class="fc" id="L120">                    .phones(phoneMappers).build();</span>
+<span class="fc" id="L121">        } catch (Exception e) {</span>
+<span class="fc" id="L122">            throw new RuntimeException(e);</span>
+<span class="fc" id="L123">        }</span>
+<span class="fc" id="L124">        return user;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

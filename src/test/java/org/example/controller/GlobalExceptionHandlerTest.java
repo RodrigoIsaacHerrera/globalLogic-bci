@@ -72,11 +72,11 @@ class GlobalExceptionHandlerTest {
         // Assert
         ErrorResponse body = actualHandleGenericExceptionResult.getBody();
         Assertions.assertNotNull(body);
-        assertEquals("An unexpected error occurred  NOT_FOUND", body.getDetail());
-        assertEquals(500, body.getCode());
-        assertEquals(500, actualHandleGenericExceptionResult.getStatusCodeValue());
+        assertEquals("An unexpected error occurred BAD_REQUEST", body.getDetail());
+        assertEquals(400, body.getCode());
+        assertEquals(400, actualHandleGenericExceptionResult.getStatusCodeValue());
         assertEquals(
-                HttpStatus.INTERNAL_SERVER_ERROR, actualHandleGenericExceptionResult.getStatusCode());
+                HttpStatus.BAD_REQUEST, actualHandleGenericExceptionResult.getStatusCode());
         assertTrue(actualHandleGenericExceptionResult.hasBody());
         assertTrue(actualHandleGenericExceptionResult.getHeaders().isEmpty());
     }
