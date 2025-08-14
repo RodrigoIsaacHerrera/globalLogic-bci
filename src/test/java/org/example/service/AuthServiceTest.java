@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.example.config.jwt.JwtService;
 import org.example.data.entity.Phone;
 import org.example.data.entity.User;
 import org.example.data.mappers.UserMapper;
@@ -25,7 +24,6 @@ import org.example.web.reponse.SignUpResponse;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
