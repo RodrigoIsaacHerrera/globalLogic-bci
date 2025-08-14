@@ -52,7 +52,7 @@ public class AuthService {
         if (!usersRepository.existsById(userId)) {
             usersRepository.save(signUser);
         } else {
-            throw new DuplicateKeyException(HttpStatus.CONFLICT.getReasonPhrase());
+            throw new DuplicateKeyException(" Operation Fail. DB reject operation");
         }
         if (!registerRequest.getPhones().isEmpty()) {
             registerRequest.getPhones().forEach(phone ->

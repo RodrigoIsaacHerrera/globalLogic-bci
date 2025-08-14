@@ -3,6 +3,7 @@ package org.example.controller;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.example.shared.ErrorResponse;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -28,6 +29,15 @@ public class GlobalExceptionHandler {
                 detail.concat(HttpStatus.NOT_FOUND.name())
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException ex) {
+        String detail = "An unexpected DB error occurred  ";
+        ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.value(),
+                detail.concat(HttpStatus.NOT_ACCEPTABLE.name()+ex.getMessage())
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler(Exception.class)
