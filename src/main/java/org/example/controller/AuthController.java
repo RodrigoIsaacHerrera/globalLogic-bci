@@ -31,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/sign-up")
-    public ResponseEntity<SignUpResponse> register(@RequestBody SignUpRequest registerRequest) {
+    public ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest registerRequest) {
         String evaluation = validationsService.validationParams(registerRequest.getEmail(),
                 registerRequest.getPassword());
         if (evaluation.contains("false")) {
