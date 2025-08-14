@@ -206,7 +206,7 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         ErrorResponse body = actualHandleUsernameNotFoundExceptionResult.getBody();
-        assertEquals("Error authentication . NOT_FOUNDMsg", body.getDetail());
+        assertEquals("Error authentication . Msg", body.getDetail());
         assertEquals(404, body.getCode());
         assertEquals(404, actualHandleUsernameNotFoundExceptionResult.getStatusCodeValue());
         assertEquals(HttpStatus.NOT_FOUND, actualHandleUsernameNotFoundExceptionResult.getStatusCode());

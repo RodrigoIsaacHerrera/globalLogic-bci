@@ -28,7 +28,8 @@ class ValidationsServiceTest {
     @DisplayName(
             "Test validationParams(String, String); then return 'false VALID EMAIL *** INVALID PASSWORD ***'")
     void testValidationParams_thenReturnFalseValidEmailInvalidPassword() {
-        // Arrange, Act and Assert
+        // Arrange,
+        // Act and Assert
         assertEquals(
                 "false VALID EMAIL ***  INVALID PASSWORD *** ",
                 validationsService.validationParams("jane.doe@example.org", "Valid Pss"));
