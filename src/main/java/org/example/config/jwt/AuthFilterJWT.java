@@ -1,5 +1,6 @@
 package org.example.config.jwt;
 
+import io.jsonwebtoken.JwtException;
 import org.example.service.JwtService;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,16 +43,20 @@ public class AuthFilterJWT extends OncePerRequestFilter {
         }
         try {
             username = jwtService.getUsernameFromToken(token);
-        } catch (AuthenticationCredentialsNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new AuthenticationCredentialsNotFoundException(" Bad Operation ");
         }
         if (username !=null && SecurityContextHolder.getContext().getAuthentication()==null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if(jwtService.isTokenValid(token, userDetails)){
-                UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+            try {
+                if(jwtService.isTokenValid(token, userDetails)){
+                    UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
 
-                permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                }
+            } catch (Exception e) {
+                throw new JwtException(" Bad Token ");
             }
         }
 

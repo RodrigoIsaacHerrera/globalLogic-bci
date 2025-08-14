@@ -52,7 +52,7 @@ public class AuthService {
 <span class="fc bfc" id="L52" title="All 2 branches covered.">        if (!usersRepository.existsById(userId)) {</span>
 <span class="fc" id="L53">            usersRepository.save(signUser);</span>
         } else {
-<span class="fc" id="L55">            throw new DuplicateKeyException(HttpStatus.CONFLICT.getReasonPhrase());</span>
+<span class="fc" id="L55">            throw new DuplicateKeyException(&quot; Operation Fail. DB reject operation&quot;);</span>
         }
 <span class="fc bfc" id="L57" title="All 2 branches covered.">        if (!registerRequest.getPhones().isEmpty()) {</span>
 <span class="fc" id="L58">            registerRequest.getPhones().forEach(phone -&gt;</span>

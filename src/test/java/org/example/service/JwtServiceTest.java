@@ -1,11 +1,14 @@
 package org.example.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
+import io.jsonwebtoken.MalformedJwtException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.example.data.entity.User;
 import org.junit.jupiter.api.DisplayName;
@@ -53,4 +56,22 @@ class JwtServiceTest {
         assertTrue((Boolean) exClaims.get("isActive"));
     }
 
+    /**
+     * Test {@link JwtService#getClaim(String, Function)}.
+     *
+     * <ul>
+     *   <li>When {@code ABC123}.
+     *   <li>Then throw {@link MalformedJwtException}.
+     * </ul>
+     *
+     * <p>Method under test: {@link JwtService#getClaim(String, Function)}
+     */
+    @Test
+    @DisplayName("Test getClaim(String, Function); when 'ABC123'; then throw MalformedJwtException")
+    void testGetClaim_whenAbc123_thenThrowMalformedJwtException() {
+        // Arrange, Act and Assert
+        assertThrows(
+                MalformedJwtException.class,
+                () -> jwtService.getClaim("ABC123", mock(Function.class)));
+    }
 }

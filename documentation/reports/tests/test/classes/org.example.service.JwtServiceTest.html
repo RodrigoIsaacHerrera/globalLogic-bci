@@ -23,7 +23,7 @@
 <tr>
 <td>
 <div class="infoBox" id="tests">
-<div class="counter">1</div>
+<div class="counter">2</div>
 <p>tests</p>
 </div>
 </td>
@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.150s</div>
+<div class="counter">0.265s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,9 +79,15 @@
 </tr>
 </thead>
 <tr>
+<td class="success">Test getClaim(String, Function); when 'ABC123'; then throw MalformedJwtException</td>
+<td class="success">testGetClaim_whenAbc123_thenThrowMalformedJwtException()</td>
+<td class="success">0.082s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
 <td class="success">Test getToken(Map, User); when User() Email is 'jane.doe@example.org'; then HashMap() size is four</td>
 <td class="success">testGetToken_whenUserEmailIsJaneDoeExampleOrg_thenHashMapSizeIsFour()</td>
-<td class="success">0.150s</td>
+<td class="success">0.183s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -89,8 +95,8 @@
 <div id="tab1" class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2025-08-13 23:19:17.622  INFO 15500 --- [    Test worker] o.s.t.c.s.DefaultTestContextBootstrapper : Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.event.ApplicationEventsTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener, org.springframework.test.context.event.EventPublishingTestExecutionListener]
-2025-08-13 23:19:17.622  INFO 15500 --- [    Test worker] o.s.t.c.s.DefaultTestContextBootstrapper : Using TestExecutionListeners: [org.springframework.test.context.web.ServletTestExecutionListener@46222027, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@5b4319b8, org.springframework.test.context.event.ApplicationEventsTestExecutionListener@75055d, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@51505ee8, org.springframework.test.context.support.DependencyInjectionTestExecutionListener@6247ffd, org.springframework.test.context.support.DirtiesContextTestExecutionListener@45e93858, org.springframework.test.context.transaction.TransactionalTestExecutionListener@6d1e9255, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener@3eea2600, org.springframework.test.context.event.EventPublishingTestExecutionListener@1b946db7, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@1733ad65, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@e2619ec, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@6193f40e, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@5952c45e, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener@53800294, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@6dd79871]
+<pre>2025-08-14 05:36:41.079  INFO 14620 --- [    Test worker] o.s.t.c.s.DefaultTestContextBootstrapper : Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.event.ApplicationEventsTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener, org.springframework.test.context.event.EventPublishingTestExecutionListener]
+2025-08-14 05:36:41.079  INFO 14620 --- [    Test worker] o.s.t.c.s.DefaultTestContextBootstrapper : Using TestExecutionListeners: [org.springframework.test.context.web.ServletTestExecutionListener@d7ac2f7, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@318c0f14, org.springframework.test.context.event.ApplicationEventsTestExecutionListener@46222027, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@5b4319b8, org.springframework.test.context.support.DependencyInjectionTestExecutionListener@75055d, org.springframework.test.context.support.DirtiesContextTestExecutionListener@51505ee8, org.springframework.test.context.transaction.TransactionalTestExecutionListener@6247ffd, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener@45e93858, org.springframework.test.context.event.EventPublishingTestExecutionListener@6d1e9255, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@3eea2600, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@1b946db7, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@1733ad65, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@e2619ec, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener@6193f40e, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@5952c45e]
 </pre>
 </span>
 </div>
@@ -102,7 +108,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 7.4</a> at Aug 13, 2025, 11:19:18 PM</p>
+<a href="http://www.gradle.org">Gradle 7.4</a> at Aug 14, 2025, 5:36:41 AM</p>
 </div>
 </div>
 </body>
