@@ -87,7 +87,7 @@ class GlobalExceptionHandlerTest {
      * <p>Method under test: {@link GlobalExceptionHandler#handleGenericException(Exception)}
      */
     @Test
-    @DisplayName("Test handleGenericException(Exception)")
+    @DisplayName("Test testHandleGenericExceptionUserExists(Exception)")
 
     void testHandleGenericExceptionUserExists() {
         // Arrange and Act
