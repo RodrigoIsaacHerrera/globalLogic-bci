@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.example.data.mappers.UserMapper;
 import org.example.data.mappers.UserMapper.UserMapperBuilder;
+import org.example.exception.GlobalExceptionHandler;
 import org.example.service.AuthService;
 import org.example.service.ValidationsService;
 import org.example.web.reponse.LoginResponse;

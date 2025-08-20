@@ -1,4 +1,4 @@
-package org.example.controller;
+package org.example.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
         final String MSG = "SQL";
         String detail = ex.getMessage();
         if(detail == null) detail = "An unexpected error occurred ";
-        if(detail.contains(MSG)) detail = "REQUEST DATA NOT ALLOWED - ";
+        if(detail.contains(MSG)) detail = "USER EXISTS - ";
         if(detail.contains(FALSE)) detail = detail.replace(FALSE,"");
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
                 detail.concat(HttpStatus.BAD_REQUEST.name())

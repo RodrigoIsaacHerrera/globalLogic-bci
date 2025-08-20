@@ -1,4 +1,4 @@
-package org.example.controller;
+package org.example.exception;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,6 +73,31 @@ class GlobalExceptionHandlerTest {
         ErrorResponse body = actualHandleGenericExceptionResult.getBody();
         Assertions.assertNotNull(body);
         assertEquals("An unexpected error occurred BAD_REQUEST", body.getDetail());
+        assertEquals(400, body.getCode());
+        assertEquals(400, actualHandleGenericExceptionResult.getStatusCodeValue());
+        assertEquals(
+                HttpStatus.BAD_REQUEST, actualHandleGenericExceptionResult.getStatusCode());
+        assertTrue(actualHandleGenericExceptionResult.hasBody());
+        assertTrue(actualHandleGenericExceptionResult.getHeaders().isEmpty());
+    }
+
+    /**
+     * Test {@link GlobalExceptionHandler#handleGenericException(Exception)}.
+     *
+     * <p>Method under test: {@link GlobalExceptionHandler#handleGenericException(Exception)}
+     */
+    @Test
+    @DisplayName("Test handleGenericException(Exception)")
+
+    void testHandleGenericExceptionUserExists() {
+        // Arrange and Act
+        ResponseEntity<ErrorResponse> actualHandleGenericExceptionResult =
+                globalExceptionHandler.handleGenericException(new Exception("SQL"));
+
+        // Assert
+        ErrorResponse body = actualHandleGenericExceptionResult.getBody();
+        Assertions.assertNotNull(body);
+        assertEquals("USER EXISTS - BAD_REQUEST", body.getDetail());
         assertEquals(400, body.getCode());
         assertEquals(400, actualHandleGenericExceptionResult.getStatusCodeValue());
         assertEquals(

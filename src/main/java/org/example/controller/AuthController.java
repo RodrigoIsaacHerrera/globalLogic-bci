@@ -21,10 +21,10 @@ public class AuthController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-   String evaluation = validationsService.validationParams(loginRequest.getEmail(),
-           loginRequest.getPassword());
+        String evaluation = validationsService.validationParams(loginRequest.getEmail(),
+                loginRequest.getPassword());
         if (evaluation.contains("false")) {
-            throw new IllegalArgumentException(" "+ evaluation);
+            throw new IllegalArgumentException(" " + evaluation);
         }
         validationsService.validationParams(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.ok(this.authService.login(loginRequest));
@@ -35,7 +35,7 @@ public class AuthController {
         String evaluation = validationsService.validationParams(registerRequest.getEmail(),
                 registerRequest.getPassword());
         if (evaluation.contains("false")) {
-            throw new IllegalArgumentException(" "+ evaluation);
+            throw new IllegalArgumentException(" " + evaluation);
         }
 
         return ResponseEntity.ok(this.authService.signUp(registerRequest));
