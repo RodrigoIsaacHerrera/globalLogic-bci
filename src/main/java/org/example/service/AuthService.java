@@ -11,7 +11,7 @@ import org.example.data.repository.UsersRepository;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,6 +51,7 @@ public class AuthService {
         signUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         if (!usersRepository.existsById(userId)) {
             usersRepository.save(signUser);
+            signUser.setPassword(registerRequest.getPassword());
         } else {
             throw new DuplicateKeyException(" Operation Fail. DB reject operation");
         }
@@ -59,21 +60,26 @@ public class AuthService {
                     phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()))
             );
         }
-
         return assemblerObjectSignUp(usersRepository
-                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(), registerRequest.getPhones());
+                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),
+                registerRequest.getPhones(), registerRequest);
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest, String authHeader) {
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
+        boolean verification = verificationToken(authHeader, loginRequest.getEmail());
+        try{
+            if(verification){
+                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+                        loginRequest.getPassword()));
+                User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+                phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
+                loginResponse = assemblerObjectLogin(user, phones, loginRequest);
+            }else{
+                throw new AuthenticationCredentialsNotFoundException("Bad Token");
+            }
 
-        try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                    loginRequest.getPassword()));//considerar que se debe authenticar usando el UUID
-            User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
-            phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
-            loginResponse = assemblerObjectLogin(user, phones);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -82,21 +88,25 @@ public class AuthService {
         return loginResponse;
     }
 
-    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones) {
+    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones, SignUpRequest signRequest) {
         String token;
+        UserMapper userMapper;
         try {
             token = jwtService.generateToken(userR);
+            userMapper = userMapperMethod(userR, phones);
+            userMapper.setPassword(userR.getPassword()); // encriptada
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return new SignUpResponse(userMapperMethod(userR, phones), userR.getId().toString(),
+        return new SignUpResponse(userMapper, userR.getId().toString(),
                 new Date(System.currentTimeMillis()).toString(), new Date(System.currentTimeMillis()).toString(),
                 token, userR.isCredentialsNonExpired());
     }
 
-    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones) {
+    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, LoginRequest loginRequest) {
         String token = jwtService.generateToken(userL);
         UserMapper user = userMapperMethod(userL, phones);
+        user.setPassword(loginRequest.getPassword());
         return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),
                 new Date(System.currentTimeMillis()).toString(),
                 token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());
@@ -116,5 +126,15 @@ public class AuthService {
             throw new RuntimeException(e);
         }
         return user;
+    }
+
+    protected boolean verificationToken(String authHeader, String emailRequest){
+        final String token = authHeader.substring(7);
+        final String idToken = this.jwtService.getIdFromToken(token);
+
+        return this.usersRepository.findByIdAndEmail(UUID.fromString(idToken), emailRequest).isPresent()
+                && emailRequest.equals(this.jwtService.getUsernameFromToken(token));
+
+
     }
 }

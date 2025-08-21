@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationCredentialsNotFoundException(
             AuthenticationCredentialsNotFoundException ex) {
-        String detail = "Error authentication . ";
+        String detail = "Error authentication.  ";
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.FORBIDDEN.value(),
                 detail.concat(HttpStatus.FORBIDDEN.name()));
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
