@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 
+import net.bytebuddy.implementation.bind.annotation.IgnoreForBinding;
 import org.example.data.mappers.UserMapper;
 import org.example.data.mappers.UserMapper.UserMapperBuilder;
 import org.example.exception.GlobalExceptionHandler;
@@ -46,19 +47,19 @@ class AuthControllerTest {
     private ValidationsService validationsService;
 
     /**
-     * Test {@link AuthController#login(LoginRequest)}.
+     * Test {@link AuthController#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Then status {@link StatusResultMatchers#isOk()}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthController#login(LoginRequest)}
+     * <p>Method under test: {@link AuthController#login(LoginRequest, String)}
      */
     @Test
     @DisplayName("Test login(LoginRequest); then status isOk()")
     void testLogin_thenStatusIsOk() throws Exception {
         // Arrange
-        when(authService.login(Mockito.<LoginRequest>any()))
+        when(authService.login(Mockito.<LoginRequest>any(), Mockito.anyString()))
                 .thenReturn(
                         new LoginResponse(
                                 "42",

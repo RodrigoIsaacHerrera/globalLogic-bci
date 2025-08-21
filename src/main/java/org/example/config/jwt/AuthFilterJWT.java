@@ -1,6 +1,8 @@
 package org.example.config.jwt;
 
 import io.jsonwebtoken.JwtException;
+import lombok.RequiredArgsConstructor;
+
 import org.example.service.JwtService;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,15 +23,11 @@ import java.io.IOException;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
+@RequiredArgsConstructor
 public class AuthFilterJWT extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-
-    public AuthFilterJWT(JwtService jwtService, UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -51,7 +49,7 @@ public class AuthFilterJWT extends OncePerRequestFilter {
             try {
                 if(jwtService.isTokenValid(token, userDetails)){
                     UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                            userDetails, token, userDetails.getAuthorities());
 
                     permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 }

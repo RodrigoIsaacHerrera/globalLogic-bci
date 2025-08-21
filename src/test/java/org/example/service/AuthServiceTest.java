@@ -93,7 +93,7 @@ class AuthServiceTest {
      * Test {@link AuthService#signUp(SignUpRequest)}.
      *
      * <ul>
-     *   <li>Given {@link JwtService} {@link JwtService#generateToken(User)} throw {@link
+     *   <li>Given {@link JwtService} {@link JwtService#generateToken(org.springframework.security.core.userdetails.UserDetails)} throw {@link
      *       DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
@@ -426,9 +426,9 @@ class AuthServiceTest {
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName("Test login(LoginRequest)")
@@ -440,19 +440,19 @@ class AuthServiceTest {
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString()));
         verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link ArrayList#ArrayList()} add {@link RunAsImplAuthenticationProvider} (default
      *       constructor).
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
@@ -472,18 +472,18 @@ class AuthServiceTest {
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString()));
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
-     *   <li>Given {@link JwtService} {@link JwtService#generateToken(User)} throw {@link
+     *   <li>Given {@link JwtService} {@link JwtService#generateToken(org.springframework.security.core.userdetails.UserDetails)} throw {@link
      *       DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
@@ -504,21 +504,21 @@ class AuthServiceTest {
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString()));
         verify(jwtService).generateToken(isA(User.class));
         verify(phonesRepository).findAllByUserId(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest,String)}.
      *
      * <ul>
      *   <li>Given {@link PhonesRepository} {@link PhonesRepository#findAllByUserId(UUID)} throw
      *       {@link DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
@@ -539,20 +539,20 @@ class AuthServiceTest {
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString()));
         verify(phonesRepository).findAllByUserId(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link User#User()} Email is {@code jane.doe@example.org}.
      *   <li>Then return Token is {@code ABC123}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
@@ -572,7 +572,8 @@ class AuthServiceTest {
 
         // Act
         LoginResponse actualLoginResult =
-                authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"));
+                authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"),
+                        Mockito.anyString());
 
         // Assert
         verify(jwtService).generateToken(isA(User.class));
@@ -587,14 +588,14 @@ class AuthServiceTest {
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link User} {@link User#getId()} return randomUUID.
      *   <li>Then calls {@link User#getId()}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName("Test login(LoginRequest); given User getId() return randomUUID; then calls getId()")
@@ -620,7 +621,7 @@ class AuthServiceTest {
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString()));
         verify(jwtService).generateToken(isA(User.class));
         verify(user, atLeast(1)).getId();
         verify(user).getName();
@@ -633,14 +634,14 @@ class AuthServiceTest {
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link UsersRepository} {@link
      *       UsersRepository#findByEmailContainingIgnoreCase(String)} return empty.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
@@ -654,7 +655,7 @@ class AuthServiceTest {
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString()));
         verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
     }
 }
