@@ -1,6 +1,5 @@
 package org.example.service;
 
-import io.jsonwebtoken.JwtException;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.example.data.entity.Phone;
@@ -17,13 +16,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.sql.Date;
 import java.util.*;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @Transactional
@@ -69,25 +64,16 @@ public class AuthService {
                 registerRequest.getPhones(), registerRequest);
     }
 
-    public LoginResponse login(LoginRequest loginRequest, String header) {
+    public LoginResponse login(LoginRequest loginRequest) {
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
-        String usernameId = this.jwtService.getUsernameFromToken(getTokenHeader(header));
+
         try {
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+                    loginRequest.getPassword()));
             User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
-            if(isOwnToken(user.getUsername(), usernameId)) {
-                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                        loginRequest.getPassword()));
-            }else{
-                throw new JwtException("Token not own by user");
-            }
-
-
-
-
             phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
             loginResponse = assemblerObjectLogin(user, phones, loginRequest);
-
 
 
         } catch (Exception e) {
@@ -96,10 +82,6 @@ public class AuthService {
 
 
         return loginResponse;
-    }
-
-    private static boolean isOwnToken(String username, String usernameId) {
-        return usernameId.equals(username);
     }
 
     private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones, SignUpRequest signRequest) {
@@ -140,13 +122,5 @@ public class AuthService {
             throw new RuntimeException(e);
         }
         return user;
-    }
-
-    private static String getTokenHeader(String authHeader) {
-        if(StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")){
-
-            return authHeader.substring(7);
-        }
-        return null;
     }
 }
