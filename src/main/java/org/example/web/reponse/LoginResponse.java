@@ -1,9 +1,6 @@
 package org.example.web.reponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.example.data.entity.Phone;
 import org.example.data.mappers.PhoneMapper;
 
@@ -12,6 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class LoginResponse {
 
     private String id;
