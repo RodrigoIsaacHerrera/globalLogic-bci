@@ -48,7 +48,7 @@ public class JwtService {
         return getClaim(token, Claims::getId);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) throws JwtException {
+    public boolean isTokenValid(String token, UserDetails userDetails) throws Exception {
         String username = getUsernameFromToken(token);
         if(isTokenExpired(token)){throw new JwtException("Expired Token");
         }
