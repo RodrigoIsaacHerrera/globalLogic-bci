@@ -107,7 +107,7 @@ public class AuthService {
     private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, LoginRequest loginRequest) {
         String token = jwtService.generateToken(userL);
         UserMapper user = userMapperMethod(userL, phones);
-        user.setPassword(loginRequest.getPassword());
+        //user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
         return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),
                 new Date(System.currentTimeMillis()).toString(),
                 token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());
