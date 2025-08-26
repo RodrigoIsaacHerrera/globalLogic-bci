@@ -1,6 +1,7 @@
 package org.example.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.example.shared.ErrorResponse;
 import org.springframework.dao.DuplicateKeyException;
@@ -40,11 +41,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(Exception.class)
+/*    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         final String FALSE = "false";
         final String MSG = "SQL";
-        String detail = ex.getMessage();
+        String detail = ex.getLocalizedMessage();
         if(detail == null) detail = "An unexpected error occurred ";
         if(detail.contains(MSG)) detail = "USER EXISTS - ";
         if(detail.contains(FALSE)) detail = detail.replace(FALSE,"");
@@ -52,7 +53,7 @@ public class GlobalExceptionHandler {
                 detail.concat(HttpStatus.BAD_REQUEST.name())
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
+    }*/
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
@@ -109,5 +110,12 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex) {
+        String detail = "Forbidden Token. ";
+        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(), detail.concat(HttpStatus.FORBIDDEN.name()));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 }

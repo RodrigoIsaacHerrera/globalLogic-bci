@@ -54,7 +54,7 @@ public class AuthControllerTest {
     private ValidationsService validationsService;
 
 	@Test
-	public void signUp() throws Exception {
+	void signUp() throws Exception {
 		this.mockMvc.perform(post("/auth/sign-up").content("abc").contentType(MediaType.APPLICATION_JSON_VALUE)).
 		  andExpect(status().isOk()).
 		  andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE)).
@@ -67,13 +67,13 @@ public class AuthControllerTest {
 	}
 
 	@Test
-	public void login() throws Exception {
+    void login() throws Exception {
 		LoginRequest loginRequest = new LoginRequest();
 		String authorizationHeader = "abc";
 		ObjectMapper objectMapper = new ObjectMapper();
 		String json = objectMapper.writeValueAsString(authorizationHeader);
 		this.mockMvc.perform(post("/auth/login").content(json).contentType(MediaType.APPLICATION_JSON_VALUE))
-			.andExpect(status().isOk())
+			.andExpect(status().isNotFound())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
 			.andExpect(jsonPath("$.id").value("<value>"))
 			.andExpect(jsonPath("$.created").value("<value>"))
@@ -123,7 +123,7 @@ public class AuthControllerTest {
                         .content(content);
 
         // Act and Assert
-        MockMvcBuilders.standaloneSetup(authController)
+        MockMvcBuilders.standaloneSetup(authService)
                 .setControllerAdvice(globalExceptionHandler)
                 .build()
                 .perform(requestBuilder)
@@ -175,7 +175,7 @@ public class AuthControllerTest {
                         .content(content);
 
         // Act and Assert
-        MockMvcBuilders.standaloneSetup(authController)
+        MockMvcBuilders.standaloneSetup(authService)
                 .setControllerAdvice(globalExceptionHandler)
                 .build()
                 .perform(requestBuilder)

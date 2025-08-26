@@ -30,10 +30,9 @@ public class JwtService {
         exClaims.put("isActive", true);
         exClaims.put("lastLogin", dateOrigin);
         exClaims.put("created", dateOrigin);
-        exClaims.put("id", user.getId().toString());
+        exClaims.put("Id", user.getId().toString());
 
         return Jwts.builder()
-                .setId(user.getId().toString())
                 .setClaims(exClaims)
                 .setSubject(user.getEmail())
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
@@ -45,10 +44,16 @@ public class JwtService {
     }
 
     public String getIdFromToken(String token) {
-        return getClaim(token, Claims::getId);
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("Id", String.class);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) throws Exception {
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = getUsernameFromToken(token);
         if(isTokenExpired(token)){throw new JwtException("Expired Token");
         }

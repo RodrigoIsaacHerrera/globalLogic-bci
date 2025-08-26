@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.sql.Date;
 import java.util.*;
@@ -61,22 +62,22 @@ public class AuthService {
             );
         }
         return assemblerObjectSignUp(usersRepository
-                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),
+                        .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),
                 registerRequest.getPhones(), registerRequest);
     }
 
     public LoginResponse login(LoginRequest loginRequest, String authHeader) {
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
-        boolean verification = verificationToken(authHeader, loginRequest.getEmail());
-        try{
-            if(verification){
+        boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
+        try {
+            if (verification) {
                 authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                         loginRequest.getPassword()));
                 User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
                 phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
                 loginResponse = assemblerObjectLogin(user, phones, loginRequest);
-            }else{
+            } else {
                 throw new AuthenticationCredentialsNotFoundException("Bad Token");
             }
 
@@ -128,8 +129,13 @@ public class AuthService {
         return user;
     }
 
-    protected boolean verificationToken(String authHeader, String emailRequest){
-        final String token = authHeader.substring(7);
+    protected boolean verificationToken(String emailRequest, String authHeader) {
+        String token;
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }else {
+            token = authHeader;
+        }
         final String idToken = this.jwtService.getIdFromToken(token);
 
         return this.usersRepository.findByIdAndEmail(UUID.fromString(idToken), emailRequest).isPresent()

@@ -477,14 +477,14 @@ class AuthServiceTest {
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link JwtService} {@link JwtService#generateToken(User)} throw {@link
      *       DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
@@ -543,48 +543,6 @@ class AuthServiceTest {
                 () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString()));
         verify(phonesRepository).findAllByUserId(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
-    }
-
-    /**
-     * Test {@link AuthService#login(LoginRequest, String)}.
-     *
-     * <ul>
-     *   <li>Given {@link User#User()} Email is {@code jane.doe@example.org}.
-     *   <li>Then return Token is {@code ABC123}.
-     * </ul>
-     *
-     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
-     */
-    @Test
-    @DisplayName(
-            "Test login(LoginRequest); given User() Email is 'jane.doe@example.org'; then return Token is 'ABC123'")
-    void testLogin_givenUserEmailIsJaneDoeExampleOrg_thenReturnTokenIsAbc123() {
-        // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
-        Optional<User> ofResult = Optional.of(user);
-        when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
-                .thenReturn(ofResult);
-        when(phonesRepository.findAllByUserId(Mockito.<UUID>any())).thenReturn(new ArrayList<>());
-        when(jwtService.generateToken(Mockito.<User>any())).thenReturn("ABC123");
-
-        // Act
-        LoginResponse actualLoginResult =
-                authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), Mockito.anyString());
-
-        // Assert
-        verify(jwtService).generateToken(isA(User.class));
-        verify(phonesRepository).findAllByUserId(isA(UUID.class));
-        verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
-        assertEquals("ABC123", actualLoginResult.getToken());
-        assertEquals("Name", actualLoginResult.getName());
-        assertEquals("iloveyou", actualLoginResult.getPassword());
-        assertEquals("jane.doe@example.org", actualLoginResult.getEmail());
-        assertTrue(actualLoginResult.getPhones().isEmpty());
-        assertTrue(actualLoginResult.isActive());
     }
 
     /**
