@@ -7,10 +7,11 @@ class org.example.service.AuthService {
 - JwtService jwtService
 + <<Create>> AuthService(PasswordEncoder,UsersRepository,PhonesRepository,AuthenticationManager,JwtService)
 + SignUpResponse signUp(SignUpRequest)
-+ LoginResponse login(LoginRequest)
-- SignUpResponse assemblerObjectSignUp(User,List<Phone>,SignUpRequest)
-- LoginResponse assemblerObjectLogin(User,List<Phone>,LoginRequest)
++ LoginResponse login(LoginRequest,String)
+- SignUpResponse assemblerObjectSignUp(User,List<Phone>)
+- LoginResponse assemblerObjectLogin(User,List<Phone>)
 - UserMapper userMapperMethod(User,List<Phone>)
+# boolean verificationToken(String,String)
 }
 
 
@@ -24,6 +25,7 @@ class org.example.service.JwtService {
 + String generateToken(User)
 ~ String getToken(Map<String,Object>,User)
 + String getUsernameFromToken(String)
++ String getIdFromToken(String)
 + boolean isTokenValid(String,UserDetails)
 - Claims getAllClaims(String)
 - Key getKey()
@@ -31,25 +33,15 @@ class org.example.service.JwtService {
 - Date getExpiration(String)
 - boolean isTokenExpired(String)
 }
+note left of org.example.service.JwtService::secret
+this is a bad practice, only for this time I use.
+end note
 
-
-class org.example.controller.GlobalExceptionHandler {
-+ ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException)
-+ ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException)
-+ ResponseEntity<ErrorResponse> handleGenericException(Exception)
-+ ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException)
-+ ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException)
-+ ResponseEntity<ErrorResponse> handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException)
-+ ResponseEntity<ErrorResponse> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException)
-+ ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException)
-+ ResponseEntity<ErrorResponse> handleExpiredJwt(ExpiredJwtException)
-+ ResponseEntity<ErrorResponse> handleMalformedJwt(MalformedJwtException)
-}
 
 class org.example.controller.AuthController {
 - AuthService authService
 - ValidationsService validationsService
-+ ResponseEntity<LoginResponse> login(LoginRequest)
++ ResponseEntity<LoginResponse> login(LoginRequest,String)
 + ResponseEntity<SignUpResponse> signUp(SignUpRequest)
 }
 
@@ -76,6 +68,7 @@ class org.example.config.jwt.AuthFilterJWT {
 
 interface org.example.data.repository.UsersRepository {
 ~ Optional<User> findByEmailContainingIgnoreCase(String)
+~ Optional<User> findByIdAndEmail(UUID,String)
 ~ boolean existsById(UUID)
 }
 
@@ -150,6 +143,20 @@ class org.example.web.reponse.LoginResponse {
 - String email
 - String password
 - List<PhoneMapper> phones
+}
+
+class org.example.exception.GlobalExceptionHandler {
++ ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException)
++ ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException)
++ ResponseEntity<ErrorResponse> handleGenericException(Exception)
++ ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException)
++ ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException)
++ ResponseEntity<ErrorResponse> handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException)
++ ResponseEntity<ErrorResponse> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException)
++ ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException)
++ ResponseEntity<ErrorResponse> handleExpiredJwt(ExpiredJwtException)
++ ResponseEntity<ErrorResponse> handleMalformedJwt(MalformedJwtException)
++ ResponseEntity<ErrorResponse> handleJwtException(JwtException)
 }
 
 class org.example.config.security.SecurityConfiguration {
