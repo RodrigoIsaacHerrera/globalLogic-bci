@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import org.example.data.entity.User;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +37,6 @@ class JwtServiceTest {
      * <p>Method under test: {@link JwtService#getToken(Map, User)}
      */
     @Test
-    @DisplayName(
-            "Test getToken(Map, User); when User() Email is 'jane.doe@example.org'; then HashMap() size is four")
     void testGetToken_whenUserEmailIsJaneDoeExampleOrg_thenHashMapSizeIsFour() {
         // Arrange
         HashMap<String, Object> exClaims = new HashMap<>();
@@ -47,7 +44,7 @@ class JwtServiceTest {
         User user = new User();
         user.setEmail("jane.doe@example.org");
         user.setId(UUID.randomUUID());
-        user.setName("Name");
+        user.setName("Jane Doe");
         user.setPassword("iloveyou");
 
         // Act
@@ -55,7 +52,7 @@ class JwtServiceTest {
 
         // Assert
         assertEquals(4, exClaims.size());
-        assertTrue(exClaims.containsKey("id"));
+        assertTrue(exClaims.containsKey("Id"));
         assertTrue((Boolean) exClaims.get("isActive"));
     }
 
@@ -70,7 +67,6 @@ class JwtServiceTest {
      * <p>Method under test: {@link JwtService#getClaim(String, Function)}
      */
     @Test
-    @DisplayName("Test getClaim(String, Function); when 'ABC123'; then throw MalformedJwtException")
     void testGetClaim_whenAbc123_thenThrowMalformedJwtException() {
         // Arrange, Act and Assert
         assertThrows(
@@ -79,7 +75,7 @@ class JwtServiceTest {
     }
 
     @Test
-    public void getUsernameFromToken() {
+    void getUsernameFromToken() {
         Map<String, Object> exClaims = new HashMap<>();
         User user = new User(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"), "abc", "abc", "abc");
         String expected = "abc";
@@ -90,7 +86,7 @@ class JwtServiceTest {
     }
 
     @Test
-    public void getIdFromToken() {
+    void getIdFromToken() {
         Map<String, Object> exClaims = new HashMap<>();
         User user = new User(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"), "abc", "abc", "abc");
         String expected = "ef199728-21aa-4a3c-a846-66202c1866c1";

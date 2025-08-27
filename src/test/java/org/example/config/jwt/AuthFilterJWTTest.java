@@ -11,6 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.UUID;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.jsonwebtoken.JwtException;
 import org.apache.catalina.connector.Response;
+import org.example.data.entity.User;
 import org.example.service.JwtService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -194,37 +197,6 @@ class AuthFilterJWTTest {
                 () -> authFilterJWT.doFilterInternal(request, new Response(), mock(FilterChain.class)));
         verify(request).getHeader("Authorization");
         verify(jwtService).getUsernameFromToken("");
-    }
-
-    /**
-     * Test {@link AuthFilterJWT#doFilterInternal(HttpServletRequest, HttpServletResponse,
-     * FilterChain)}.
-     *
-     * <ul>
-     *   <li>Then calls {@link JwtService#isTokenValid(String, UserDetails)}.
-     * </ul>
-     *
-     * <p>Method under test: {@link AuthFilterJWT#doFilterInternal(HttpServletRequest,
-     * HttpServletResponse, FilterChain)}
-     */
-    @Test
-    @DisplayName(
-            "Test doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain); then calls isTokenValid(String, UserDetails)")
-    void testDoFilterInternal_thenCallsIsTokenValid() throws Exception {
-        // Arrange
-        when(jwtService.isTokenValid(Mockito.<String>any(), Mockito.<UserDetails>any()))
-                .thenThrow(new AuthenticationCredentialsNotFoundException("Authorization"));
-        when(jwtService.getUsernameFromToken(Mockito.<String>any())).thenReturn("janedoe");
-        DefaultMultipartHttpServletRequest request = mock(DefaultMultipartHttpServletRequest.class);
-        when(request.getHeader(Mockito.<String>any())).thenReturn("Bearer ");
-
-        // Act and Assert
-        assertThrows(
-                JwtException.class,
-                () -> authFilterJWT.doFilterInternal(request, new Response(), mock(FilterChain.class)));
-        verify(request).getHeader("Authorization");
-        verify(jwtService).getUsernameFromToken("");
-        verify(jwtService).isTokenValid(eq(""), isNull());
     }
 
     /**

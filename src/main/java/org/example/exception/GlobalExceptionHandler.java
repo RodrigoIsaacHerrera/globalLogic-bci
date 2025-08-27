@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
     }
 
-/*    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         final String FALSE = "false";
         final String MSG = "SQL";
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
                 detail.concat(HttpStatus.BAD_REQUEST.name())
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }*/
+    }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
