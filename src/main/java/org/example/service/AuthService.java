@@ -14,6 +14,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,10 +64,10 @@ public class AuthService {
         }
         return assemblerObjectSignUp(usersRepository
                         .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),
-                registerRequest.getPhones(), registerRequest);
+                registerRequest.getPhones());
     }
 
-    public LoginResponse login(LoginRequest loginRequest, String authHeader) {
+    public LoginResponse login(LoginRequest loginRequest, String authHeader) throws AuthenticationException {
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
         boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
@@ -76,7 +77,7 @@ public class AuthService {
                         loginRequest.getPassword()));
                 User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
                 phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
-                loginResponse = assemblerObjectLogin(user, phones, loginRequest);
+                loginResponse = assemblerObjectLogin(user, phones);
             } else {
                 throw new AuthenticationCredentialsNotFoundException("Bad Token");
             }
@@ -89,7 +90,7 @@ public class AuthService {
         return loginResponse;
     }
 
-    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones, SignUpRequest signRequest) {
+    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones) {
         String token;
         UserMapper userMapper;
         try {
@@ -104,7 +105,7 @@ public class AuthService {
                 token, userR.isCredentialsNonExpired());
     }
 
-    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, LoginRequest loginRequest) {
+    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones) {
         String token = jwtService.generateToken(userL);
         UserMapper user = userMapperMethod(userL, phones);
         //user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
