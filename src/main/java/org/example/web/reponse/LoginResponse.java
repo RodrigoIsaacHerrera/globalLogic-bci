@@ -1,7 +1,6 @@
 package org.example.web.reponse;
 
 import lombok.*;
-import org.example.data.entity.Phone;
 import org.example.data.mappers.PhoneMapper;
 
 import java.util.List;
