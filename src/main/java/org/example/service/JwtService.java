@@ -54,10 +54,17 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = getUsernameFromToken(token);
-        if(isTokenExpired(token)){throw new JwtException("Expired Token");
+        try {
+            String username = getUsernameFromToken(token);
+            if (isTokenExpired(token)) {
+                throw new JwtException("Expired Token");
+            }
+            return username.equals(userDetails.getUsername());
+        } catch (MalformedJwtException e) {
+            throw new MalformedJwtException("Invalid Token", e);
+        } catch (JwtException e) {
+            throw new JwtException("Expired Token", e);
         }
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private Claims getAllClaims(String token) throws SignatureException {
