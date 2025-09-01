@@ -1,16 +1,23 @@
 package org.example.controller;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.example.data.entity.Phone;
 import org.example.data.mappers.UserMapper;
 import org.example.data.mappers.UserMapper.UserMapperBuilder;
 import org.example.exception.GlobalExceptionHandler;
 import org.example.service.AuthService;
 import org.example.service.ValidationsService;
+import org.example.shared.ErrorResponse;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
 import org.example.web.request.LoginRequest;
@@ -20,8 +27,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -45,6 +56,7 @@ class AuthControllerTest {
     @MockBean
     private ValidationsService validationsService;
 
+
     /**
      * Test {@link AuthController#login(LoginRequest, String)}.
      *
@@ -58,8 +70,6 @@ class AuthControllerTest {
     @DisplayName("Test login(LoginRequest, AuthHeader); then status isOk()")
     void testLogin_thenStatusIsOk() throws Exception {
         // Arrange
-        /*User user = new User(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"),"Name",
-                "jane.doe@example.org","iloveyou");*/
         when(authService.login(Mockito.<LoginRequest>any(),Mockito.anyString()))
                 .thenReturn(
                         new LoginResponse(
@@ -96,6 +106,33 @@ class AuthControllerTest {
                                 .string(
                                         "{\"id\":\"42\",\"created\":\"Jan 1, 2020 8:00am GMT+0100\",\"lastLogin\":\"Last Login\",\"token\":\"ABC123\",\"name\":"
                                                 + "\"Name\",\"email\":\"jane.doe@example.org\",\"password\":\"iloveyou\",\"phones\":[],\"active\":true}"));
+    }
+
+    @Test
+    @DisplayName("Test login(LoginRequest, AuthHeader); then status isBadRequest()")
+    void testLogin_thenStatusIsBadRequest() throws Exception {
+        // Arrange
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("jane.doeexample.org");
+        loginRequest.setPassword("iloveyou");
+        String content = new ObjectMapper().writeValueAsString(loginRequest);
+        MockHttpServletRequestBuilder requestBuilder =
+                MockMvcRequestBuilders.post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+                        .header("Authorization", "Bearer ABC123");
+
+        
+        // Act and Assert
+        MockMvcBuilders.standaloneSetup(authController)
+                .setControllerAdvice(globalExceptionHandler)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.detail").value("An unexpected error occurred BAD_REQUEST"))
+                .andExpect(jsonPath("$.timestamp").isArray())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
     }
 
     /**
@@ -149,5 +186,33 @@ class AuthControllerTest {
                                         "{\"user\":{\"id\":\"42\",\"name\":\"Name\",\"email\":\"jane.doe@example.org\",\"password\":\"iloveyou\",\"phones\":[]"
                                                 + "},\"id\":\"42\",\"created\":\"Jan 1, 2020 8:00am GMT+0100\",\"lastLogin\":\"Last Login\",\"token\":\"ABC123\","
                                                 + "\"active\":true}"));
+    }
+
+    @Test
+    @DisplayName("Test signUp(SignUpRequest); then status isBadRequest()")
+    void testSignUp_thenStatusIsBadRequest() throws Exception {
+        // Arrange
+        SignUpRequest signUpRequest = new SignUpRequest();
+        signUpRequest.setEmail("jane.doeexample.org");
+        signUpRequest.setName("Name");
+        signUpRequest.setPassword("iloveyou");
+        signUpRequest.setPhones(new ArrayList<>());
+        String content = new ObjectMapper().writeValueAsString(signUpRequest);
+
+        MockHttpServletRequestBuilder requestBuilder =
+                MockMvcRequestBuilders.post("/auth/sign-up")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content);
+
+        // Act and Assert
+        MockMvcBuilders.standaloneSetup(authController)
+                .setControllerAdvice(globalExceptionHandler)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.detail").value("An unexpected error occurred BAD_REQUEST"))
+                .andExpect(jsonPath("$.timestamp").isArray())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
     }
 }
