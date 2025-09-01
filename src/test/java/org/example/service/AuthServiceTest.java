@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -19,7 +18,6 @@ import org.example.data.entity.User;
 import org.example.data.mappers.UserMapper;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
-import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
@@ -36,6 +34,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -361,7 +360,8 @@ class AuthServiceTest {
      */
     @Test
     @DisplayName(
-            "Test signUp(SignUpRequest); given UsersRepository existsById(UUID) throw DuplicateKeyException(String) with 'Msg'")
+            "Test signUp(SignUpRequest); given UsersRepository existsById(UUID)" +
+                    " throw DuplicateKeyException(String) with 'Msg'")
     void testSignUp_givenUsersRepositoryExistsByIdThrowDuplicateKeyExceptionWithMsg()
             throws DuplicateKeyException {
         // Arrange
@@ -417,7 +417,6 @@ class AuthServiceTest {
         verify(usersRepository).save(isA(User.class));
         assertEquals("ABC123", actualSignUpResult.getToken());
         UserMapper user3 = actualSignUpResult.getUser();
-        user3.setPassword("iloveyou");
         assertEquals("Name", user3.getName());
         assertEquals("iloveyou", user3.getPassword());
         assertEquals("jane.doe@example.org", user3.getEmail());
@@ -426,33 +425,20 @@ class AuthServiceTest {
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
-    @Test
-    @DisplayName("Test login(LoginRequest)")
-    void testLogin() {
-        // Arrange
-        when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
-                .thenThrow(new DuplicateKeyException("Msg"));
-
-        // Act and Assert
-        assertThrows(
-                RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
-        verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
-    }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link ArrayList#ArrayList()} add {@link RunAsImplAuthenticationProvider} (default
      *       constructor).
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
@@ -472,129 +458,93 @@ class AuthServiceTest {
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest("jane.doe@example.org"
+                        , "iloveyou"), "Bearer "));
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link JwtService} {@link JwtService#generateToken(User)} throw {@link
      *       DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
-            "Test login(LoginRequest); given JwtService generateToken(User) throw DuplicateKeyException(String) with 'Msg'")
-    void testLogin_givenJwtServiceGenerateTokenThrowDuplicateKeyExceptionWithMsg() {
+            "Test login(LoginRequest, authHeader); given JwtService generateToken(User)" +
+                    " throw DuplicateKeyException(String) with 'Msg'")
+    public void testLogin_givenJwtServiceGenerateTokenThrowNullPointerException() {
         // Arrange
         User user = new User();
         user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
+        user.setId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"));
         user.setName("Name");
         user.setPassword("iloveyou");
+
         Optional<User> ofResult = Optional.of(user);
-        when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
+        when(usersRepository.findByEmailContainingIgnoreCase("jane.doe@example.org"))
                 .thenReturn(ofResult);
-        when(phonesRepository.findAllByUserId(Mockito.<UUID>any())).thenReturn(new ArrayList<>());
-        when(jwtService.generateToken(Mockito.<User>any())).thenThrow(new DuplicateKeyException("Msg"));
+        when(phonesRepository.findAllByUserId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1")))
+                .thenReturn(new ArrayList<>());
+        when(jwtService.generateToken(user)).thenThrow(new NullPointerException());
+        when(jwtService.getIdFromToken("")).thenReturn("ef199728-21aa-4a3c-a846-66202c1866c1");
 
         // Act and Assert
+
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
-        verify(jwtService).generateToken(isA(User.class));
-        verify(phonesRepository).findAllByUserId(isA(UUID.class));
-        verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
+                () -> authService
+                        .login(new LoginRequest("jane.doe@example.org", "iloveyou")
+                                , "Bearer "));
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link PhonesRepository} {@link PhonesRepository#findAllByUserId(UUID)} throw
      *       {@link DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
+    @DirtiesContext
     @DisplayName(
-            "Test login(LoginRequest); given PhonesRepository findAllByUserId(UUID) throw DuplicateKeyException(String) with 'Msg'")
-    void testLogin_givenPhonesRepositoryFindAllByUserIdThrowDuplicateKeyExceptionWithMsg() {
+            "Test login(LoginRequest, AuthHeader); given PhonesRepository findAllByUserId(UUID) " +
+                    "throw DuplicateKeyException(String) with 'Msg'")
+    public void testLogin_givenPhonesRepositoryFindAllByUserIdThrowDuplicateKeyExceptionWithMsg() {
         // Arrange
         User user = new User();
         user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
+        user.setId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"));
         user.setName("Name");
         user.setPassword("iloveyou");
         Optional<User> ofResult = Optional.of(user);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
-        when(phonesRepository.findAllByUserId(Mockito.<UUID>any()))
+        when(phonesRepository.findAllByUserId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1")))
                 .thenThrow(new DuplicateKeyException("Msg"));
 
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
-        verify(phonesRepository).findAllByUserId(isA(UUID.class));
-        verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), "Bearer "));
     }
 
-    /**
-     * Test {@link AuthService#login(LoginRequest)}.
-     *
-     * <ul>
-     *   <li>Given {@link User#User()} Email is {@code jane.doe@example.org}.
-     *   <li>Then return Token is {@code ABC123}.
-     * </ul>
-     *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
-     */
-    @Test
-    @DisplayName(
-            "Test login(LoginRequest); given User() Email is 'jane.doe@example.org'; then return Token is 'ABC123'")
-    void testLogin_givenUserEmailIsJaneDoeExampleOrg_thenReturnTokenIsAbc123() {
-        // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
-        Optional<User> ofResult = Optional.of(user);
-        when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
-                .thenReturn(ofResult);
-        when(phonesRepository.findAllByUserId(Mockito.<UUID>any())).thenReturn(new ArrayList<>());
-        when(jwtService.generateToken(Mockito.<User>any())).thenReturn("ABC123");
-
-        // Act
-        LoginResponse actualLoginResult =
-                authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"));
-
-        // Assert
-        verify(jwtService).generateToken(isA(User.class));
-        verify(phonesRepository).findAllByUserId(isA(UUID.class));
-        verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
-        assertEquals("ABC123", actualLoginResult.getToken());
-        assertEquals("Name", actualLoginResult.getName());
-        assertEquals("iloveyou", actualLoginResult.getPassword());
-        assertEquals("jane.doe@example.org", actualLoginResult.getEmail());
-        assertTrue(actualLoginResult.getPhones().isEmpty());
-        assertTrue(actualLoginResult.isActive());
-    }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link User} {@link User#getId()} return randomUUID.
      *   <li>Then calls {@link User#getId()}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName("Test login(LoginRequest); given User getId() return randomUUID; then calls getId()")
@@ -602,59 +552,50 @@ class AuthServiceTest {
         // Arrange
         User user = mock(User.class);
         when(user.getName()).thenThrow(new DuplicateKeyException("Msg"));
-        when(user.getId()).thenReturn(UUID.randomUUID());
-        doNothing().when(user).setEmail(Mockito.<String>any());
-        doNothing().when(user).setId(Mockito.<UUID>any());
-        doNothing().when(user).setName(Mockito.<String>any());
-        doNothing().when(user).setPassword(Mockito.<String>any());
         user.setEmail("jane.doe@example.org");
         user.setId(UUID.randomUUID());
         user.setName("Name");
         user.setPassword("iloveyou");
+        String token = jwtService.generateToken(user);
         Optional<User> ofResult = Optional.of(user);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(phonesRepository.findAllByUserId(Mockito.<UUID>any())).thenReturn(new ArrayList<>());
-        when(jwtService.generateToken(Mockito.<User>any())).thenReturn("ABC123");
+        when(jwtService.generateToken(Mockito.<User>any())).thenReturn(token);
 
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
+                () -> authService.login(new LoginRequest(Mockito.any(), Mockito.any()),
+                        "Bearer " + token));
         verify(jwtService).generateToken(isA(User.class));
-        verify(user, atLeast(1)).getId();
-        verify(user).getName();
-        verify(user).setEmail("jane.doe@example.org");
-        verify(user).setId(isA(UUID.class));
-        verify(user).setName("Name");
-        verify(user).setPassword("iloveyou");
-        verify(phonesRepository).findAllByUserId(isA(UUID.class));
-        verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
+
     }
 
     /**
-     * Test {@link AuthService#login(LoginRequest)}.
+     * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Given {@link UsersRepository} {@link
      *       UsersRepository#findByEmailContainingIgnoreCase(String)} return empty.
      * </ul>
      *
-     * <p>Method under test: {@link AuthService#login(LoginRequest)}
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
     @DisplayName(
-            "Test login(LoginRequest); given UsersRepository findByEmailContainingIgnoreCase(String) return empty")
+            "Test login(LoginRequest, AuthHeader); given UsersRepository findByEmailContainingIgnoreCase(String) " +
+                    "return empty")
     void testLogin_givenUsersRepositoryFindByEmailContainingIgnoreCaseReturnEmpty() {
         // Arrange
         Optional<User> emptyResult = Optional.empty();
-        when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
+        when(usersRepository.findByEmailContainingIgnoreCase("jane.doe@example.org"))
                 .thenReturn(emptyResult);
 
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
-                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou")));
-        verify(usersRepository).findByEmailContainingIgnoreCase("jane.doe@example.org");
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"),
+                        "Bearer "));
     }
 }

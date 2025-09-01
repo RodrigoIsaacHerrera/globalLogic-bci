@@ -1,6 +1,5 @@
 package org.example.data.entity;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

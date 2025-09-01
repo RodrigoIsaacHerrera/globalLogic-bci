@@ -1,0 +1,12 @@
+{
+  "name": "Juan Pérez",
+  "email": "juan.perez@example.com",
+  "password": "a2asfGfdfdf4",
+  "phones": [
+    {
+    "number": 87650009,
+    "citycode": 7,
+    "countrycode": "25"
+    }
+  ]
+}

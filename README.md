@@ -43,7 +43,7 @@ document index.html or testsession.html
 
 ON APP open import collection and select 
 
-../documentation [httpie-collection-httpie-ejercicio-global-logic.json](documentation/httpie-collection-httpie-ejercicio-global-logic.json)
+../documentation [httpie-collection-httpie-ejercicio-global-logic.json](docs/httpie-collection-httpie-ejercicio-global-logic.json)
 
 httPie
 
@@ -52,6 +52,6 @@ httPie
 # DOCUMENTATION
 root directory / documentation
 
-../documentation [AuthController_login.png](documentation/AuthController_login.png)
+../documentation [AuthController_login.png](docs/AuthController_login.png)
 
 

@@ -46,19 +46,21 @@ class AuthControllerTest {
     private ValidationsService validationsService;
 
     /**
-     * Test {@link AuthController#login(LoginRequest)}.
+     * Test {@link AuthController#login(LoginRequest, String)}.
      *
      * <ul>
      *   <li>Then status {@link StatusResultMatchers#isOk()}.
      * </ul>
      *
-     * <p>Method under test: {@link AuthController#login(LoginRequest)}
+     * <p>Method under test: {@link AuthController#login(LoginRequest, String)}
      */
     @Test
-    @DisplayName("Test login(LoginRequest); then status isOk()")
+    @DisplayName("Test login(LoginRequest, AuthHeader); then status isOk()")
     void testLogin_thenStatusIsOk() throws Exception {
         // Arrange
-        when(authService.login(Mockito.<LoginRequest>any()))
+        /*User user = new User(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"),"Name",
+                "jane.doe@example.org","iloveyou");*/
+        when(authService.login(Mockito.<LoginRequest>any(),Mockito.anyString()))
                 .thenReturn(
                         new LoginResponse(
                                 "42",
@@ -79,7 +81,8 @@ class AuthControllerTest {
         MockHttpServletRequestBuilder requestBuilder =
                 MockMvcRequestBuilders.post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(content);
+                        .content(content)
+                        .header("Authorization", "Bearer ABC123");
 
         // Act and Assert
         MockMvcBuilders.standaloneSetup(authController)
@@ -105,7 +108,7 @@ class AuthControllerTest {
      * <p>Method under test: {@link AuthController#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName("Test register(SignUpRequest); then status isOk()")
+    @DisplayName("Test signUp(SignUpRequest); then status isOk()")
     void testSignUp_thenStatusIsOk() throws Exception {
         // Arrange
         UserMapperBuilder passwordResult =

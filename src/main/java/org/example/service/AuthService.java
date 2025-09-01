@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.NoArgsConstructor;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.example.data.entity.Phone;
@@ -10,12 +11,16 @@ import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.sql.Date;
 import java.util.*;
@@ -60,37 +65,42 @@ public class AuthService {
             );
         }
         return assemblerObjectSignUp(usersRepository
-                .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),
-                registerRequest.getPhones(), registerRequest);
+                        .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),
+                registerRequest.getPhones());
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest, String authHeader){
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
-
+        boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
         try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                    loginRequest.getPassword()));
-            User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
-            phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
-            loginResponse = assemblerObjectLogin(user, phones, loginRequest);
+            if (verification) {
+                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+                        loginRequest.getPassword()));
+                User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+                phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
+                loginResponse = assemblerObjectLogin(user, phones);
+            } else {
+                throw new AuthenticationCredentialsNotFoundException("Bad Token");
+            }
 
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (AuthenticationCredentialsNotFoundException e) {
+            throw new AuthenticationCredentialsNotFoundException("Bad Token", e);
+        } catch (NullPointerException e) {
+            throw new NullPointerException("Bad Token, Null Item");
         }
 
 
         return loginResponse;
     }
 
-    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones, SignUpRequest signRequest) {
+    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones) {
         String token;
         UserMapper userMapper;
         try {
             token = jwtService.generateToken(userR);
             userMapper = userMapperMethod(userR, phones);
-            userMapper.setPassword(signRequest.getPassword());
+            userMapper.setPassword(userR.getPassword()); // encriptada
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -99,10 +109,10 @@ public class AuthService {
                 token, userR.isCredentialsNonExpired());
     }
 
-    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones, LoginRequest loginRequest) {
+    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones) {
         String token = jwtService.generateToken(userL);
         UserMapper user = userMapperMethod(userL, phones);
-        user.setPassword(loginRequest.getPassword());
+        //user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
         return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),
                 new Date(System.currentTimeMillis()).toString(),
                 token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());
@@ -122,5 +132,20 @@ public class AuthService {
             throw new RuntimeException(e);
         }
         return user;
+    }
+
+    protected boolean verificationToken(String emailRequest, String authHeader) {
+        String token;
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }else {
+            token = authHeader;
+        }
+        final String idToken = this.jwtService.getIdFromToken(token);
+
+        return this.usersRepository.findByIdAndEmail(UUID.fromString(idToken), emailRequest).isPresent()
+                && emailRequest.equals(this.jwtService.getUsernameFromToken(token));
+
+
     }
 }

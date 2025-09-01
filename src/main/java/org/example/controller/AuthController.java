@@ -20,14 +20,15 @@ public class AuthController {
     private final ValidationsService validationsService;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, @RequestHeader("Authorization")
+                                               String authorizationHeader) {
         String evaluation = validationsService.validationParams(loginRequest.getEmail(),
                 loginRequest.getPassword());
         if (evaluation.contains("false")) {
             throw new IllegalArgumentException(" " + evaluation);
         }
         validationsService.validationParams(loginRequest.getEmail(), loginRequest.getPassword());
-        return ResponseEntity.ok(this.authService.login(loginRequest));
+        return ResponseEntity.ok(this.authService.login(loginRequest, authorizationHeader));
     }
 
     @PostMapping(value = "/sign-up")

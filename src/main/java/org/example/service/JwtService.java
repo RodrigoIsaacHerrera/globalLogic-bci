@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    //this is a bad practice, only for this time i use.
+    //this is a bad practice, only for this time I use.
     final String secret = "586E3272357578982F413F4428472B4B6250655368566B598071733676397924";
 
     public String generateToken(User user) {
@@ -30,10 +30,9 @@ public class JwtService {
         exClaims.put("isActive", true);
         exClaims.put("lastLogin", dateOrigin);
         exClaims.put("created", dateOrigin);
-        exClaims.put("id", user.getId().toString());
+        exClaims.put("Id", user.getId().toString());
 
         return Jwts.builder()
-                .setId(user.getId().toString())
                 .setClaims(exClaims)
                 .setSubject(user.getEmail())
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
@@ -44,11 +43,28 @@ public class JwtService {
         return getClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) throws JwtException {
-        String username = getUsernameFromToken(token);
-        if(isTokenExpired(token)){throw new JwtException("Expired Token");
+    public String getIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("Id", String.class);
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        try {
+            String username = getUsernameFromToken(token);
+            if (isTokenExpired(token)) {
+                throw new JwtException("Expired Token");
+            }
+            return username.equals(userDetails.getUsername());
+        } catch (MalformedJwtException e) {
+            throw new MalformedJwtException("Invalid Token", e);
+        } catch (JwtException e) {
+            throw new JwtException("Expired Token", e);
         }
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private Claims getAllClaims(String token) throws SignatureException {

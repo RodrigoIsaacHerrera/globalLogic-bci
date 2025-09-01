@@ -1,6 +1,7 @@
 package org.example.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.example.shared.ErrorResponse;
 import org.springframework.dao.DuplicateKeyException;
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         final String FALSE = "false";
         final String MSG = "SQL";
-        String detail = ex.getMessage();
+        String detail = ex.getLocalizedMessage();
         if(detail == null) detail = "An unexpected error occurred ";
         if(detail.contains(MSG)) detail = "USER EXISTS - ";
         if(detail.contains(FALSE)) detail = detail.replace(FALSE,"");
@@ -81,7 +82,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationCredentialsNotFoundException(
             AuthenticationCredentialsNotFoundException ex) {
-        String detail = "Error authentication . ";
+        String detail = "Error authentication.  ";
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(), HttpStatus.FORBIDDEN.value(),
                 detail.concat(HttpStatus.FORBIDDEN.name()));
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
@@ -109,5 +110,12 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(), detail.concat(HttpStatus.UNAUTHORIZED.name()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex) {
+        String detail = "Forbidden Token. ";
+        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(), detail.concat(HttpStatus.FORBIDDEN.name()));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 }

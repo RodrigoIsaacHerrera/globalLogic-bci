@@ -209,7 +209,7 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         ErrorResponse body = actualHandleAuthenticationCredentialsNotFoundExceptionResult.getBody();
-        assertEquals("Error authentication . FORBIDDEN", body.getDetail());
+        assertEquals("Error authentication.  FORBIDDEN", body.getDetail());
         assertEquals(403, body.getCode());
         assertEquals(
                 403, actualHandleAuthenticationCredentialsNotFoundExceptionResult.getStatusCodeValue());

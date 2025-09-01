@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -47,16 +48,19 @@ public class AuthFilterJWT extends OncePerRequestFilter {
             throw new AuthenticationCredentialsNotFoundException(" Bad Operation ");
         }
         if (username !=null && SecurityContextHolder.getContext().getAuthentication()==null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
             try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if(jwtService.isTokenValid(token, userDetails)){
                     UsernamePasswordAuthenticationToken permissionToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
 
                     permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 }
-            } catch (Exception e) {
+            } catch (JwtException e) {
                 throw new JwtException(" Bad Token ");
+            } catch (UsernameNotFoundException u){
+                throw new UsernameNotFoundException(u.getMessage());
             }
         }
 
