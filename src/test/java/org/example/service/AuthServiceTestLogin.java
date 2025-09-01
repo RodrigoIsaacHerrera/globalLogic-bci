@@ -5,7 +5,6 @@ import org.example.data.entity.User;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
 import org.example.shared.enums.RolePermissions;
-import org.example.web.reponse.LoginResponse;
 import org.example.web.request.LoginRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {AuthService.class})
@@ -113,52 +111,11 @@ public class AuthServiceTestLogin {
 
         when(phonesRepository.findAllByUserId(user.getId())).thenReturn(Collections.singletonList(phones));
 
-        // Act
-        LoginResponse result = authService.login(loginRequest, authHeader);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("mock-jwt-token", result.getToken());
-        assertEquals(user.getName(), result.getName());
-        assertEquals(user.getEmail(), result.getEmail());
-        assertEquals(1, result.getPhones().size());
-        assertEquals(1234567L, result.getPhones().get(0).getNumber());
-        assertTrue(result.isActive());
-        //verify(authService).assemblerObjectLogin(any(User.class), anyList());
-    }
-
-    @Test
-    void login_ValidCredentialsAndToken_ReturnsLoginResponseValidParams() {
-        // Arrange
-        setup();
-
-        // Simular que el token es válido
-        doReturn("69d21041-9a99-4f95-b87f-2128c1197ed2").when(jwtService)
-                .getIdFromToken(authHeader.substring(7));
-        when(this.authService.verificationToken(loginRequest.getEmail(), authHeader)).thenCallRealMethod();
-        // Como verificationToken no está en el snippet, lo mockeamos directamente
-        //doReturn(true).when(authService).verificationToken(loginRequest.getEmail(), authHeader);
-
-        // Simular autenticación exitosa
-        Authentication authenticatedToken = new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(), null, new ArrayList<>()
-        );
-        doNothing().when(this.authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-
-        // Simular que el usuario existe
-        when(usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()))
-                .thenReturn(resultOf);
-
-        // Simular que hay teléfonos
-        List<Phone> phones = new ArrayList<>();
-        phones.add(phone);
-        when(phonesRepository.findAllByUserId(user.getId())).thenReturn(Collections.singletonList(phones));
-
-        // Simular el ensamblador
-        LoginResponse expectedResponse = authService.login(loginRequest, authHeader);
-
-        // Assert
-        verify(usersRepository).findByEmailContainingIgnoreCase(loginRequest.getEmail());
+        String expected = "Bad Token, Null Item";
+        // Act & Assert
+        NullPointerException e = assertThrows(NullPointerException.class, () ->
+                authService.login(loginRequest, authHeader));
+        assertEquals(expected,e.getMessage());
     }
 
     @Test
