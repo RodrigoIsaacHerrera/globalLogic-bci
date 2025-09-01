@@ -122,7 +122,7 @@ class AuthControllerTest {
                         .content(content)
                         .header("Authorization", "Bearer ABC123");
 
-        
+
         // Act and Assert
         MockMvcBuilders.standaloneSetup(authController)
                 .setControllerAdvice(globalExceptionHandler)
