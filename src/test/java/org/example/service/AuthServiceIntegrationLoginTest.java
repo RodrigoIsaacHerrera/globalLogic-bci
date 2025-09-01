@@ -52,6 +52,7 @@ class AuthServiceIntegrationLoginTest {
     private User testUser;
 
     private String authHeader;
+    private String authHeaderWB;
 
     @BeforeEach
     void setUp() {
@@ -69,6 +70,7 @@ class AuthServiceIntegrationLoginTest {
         testUser = usersRepository.save(testUser);
 
         authHeader = "Bearer " + this.jwtService.generateToken(testUser);
+        authHeaderWB = this.jwtService.generateToken(testUser);
 
 
         // Guardar teléfono asociado
@@ -102,6 +104,43 @@ class AuthServiceIntegrationLoginTest {
 
 
         LoginResponse result = spyAuthService.login(loginRequest, authHeader);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("john.doe@example.com", result.getEmail());
+        assertEquals("John Doe", result.getName());
+        assertTrue(result.getToken().contains("eyJhbGciOiJIUzI1NiJ9."));
+        assertTrue(result.isActive());
+        assertNotNull(result.getCreated());
+        assertNotNull(result.getLastLogin());
+        assertEquals(1, result.getPhones().size());
+
+        PhoneMapper phone = result.getPhones().get(0);
+        assertEquals(1234567L, phone.getNumber());
+        assertEquals(1, phone.getCitycode());
+        assertEquals("57", phone.getCountrycode());
+    }
+    /**
+     * Caso 2: Credenciales válidas y token sin "bearer" válido → Login exitoso
+     */
+    @Test
+    void login_ValidCredentialsAndTokenWithoutBearer_ReturnsLoginResponse() {
+        setUp();
+        // Simulamos que el token es válido
+        doReturn(true).when(spyAuthService).verificationToken("john.doe@example.com", "Bearer valid-token");
+
+        LoginRequest loginRequest = new LoginRequest("john.doe@example.com", "asdF4cv3vse");
+
+        // Primero: verificamos que AuthenticationManager funcione (opcional, pero útil)
+        Authentication auth = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+        assertNotNull(auth);
+        assertTrue(auth.isAuthenticated());
+        assertEquals("john.doe@example.com", auth.getName());
+
+
+        LoginResponse result = spyAuthService.login(loginRequest, authHeaderWB);
 
         // Assert
         assertNotNull(result);
