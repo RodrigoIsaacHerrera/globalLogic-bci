@@ -93,7 +93,7 @@ public class AuthServiceTestLogin {
     }
 
     @Test
-    void login_ValidCredentialsAndToken_ReturnsLoginResponse() throws Exception {
+    void login_ValidCredentialsAndToken_ReturnsNullPointerExceptionWithMsg() throws Exception {
         // Arrange
         setup();
         Authentication auth = new UsernamePasswordAuthenticationToken(
