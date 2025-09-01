@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.NoArgsConstructor;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.example.data.entity.Phone;
@@ -10,6 +11,7 @@ import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,7 +69,7 @@ public class AuthService {
                 registerRequest.getPhones());
     }
 
-    public LoginResponse login(LoginRequest loginRequest, String authHeader) throws AuthenticationException {
+    public LoginResponse login(LoginRequest loginRequest, String authHeader){
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
         boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
@@ -82,8 +84,10 @@ public class AuthService {
                 throw new AuthenticationCredentialsNotFoundException("Bad Token");
             }
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (AuthenticationCredentialsNotFoundException e) {
+            throw new AuthenticationCredentialsNotFoundException("Bad Token", e);
+        } catch (NullPointerException e) {
+            throw new NullPointerException("Bad Token, Null Item");
         }
 
 
