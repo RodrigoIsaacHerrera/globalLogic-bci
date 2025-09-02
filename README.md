@@ -1,5 +1,5 @@
 # GLOBAL LOGIC - BCI
-Evaluation Java 11 / Spring 2.5.4 / Gradle 7.X
+Evaluation Java 11 / Spring 2.5.4 / Gradle 7.4
 
 Run Book
 
@@ -36,7 +36,7 @@ ctrl+c over shell terminal used >> STOP API
 
 gradlew test >> RUN TESTING and Jacoco Collection Report 
 
-TO SEE TEST GO TO "reports" file in project directory open in browser
+TO SEE Coverage Test Jacoco GO TO "build/reports/jacoco/index.html" file, in project directory open in browser;
 document index.html or testsession.html
 
 # ClIENT API
