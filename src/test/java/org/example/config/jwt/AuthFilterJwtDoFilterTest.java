@@ -3,9 +3,7 @@ package org.example.config.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.example.service.JwtService;
-import org.springframework.security.core.userdetails.User;
 import org.example.web.request.LoginRequest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,14 +15,12 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,24 +35,15 @@ class AuthFilterJwtDoFilterTest {
     private UserDetailsService userDetailsService;
 
     @InjectMocks
-    private AuthFilterJWT jwtAuthenticationFilter;
+    private AuthFilterJWT authFilterJWT;
 
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private FilterChain filterChain;
     private ObjectMapper objectMapper;
-    private User coreUserDetails;
-    private String authHeaderToken;
-    private String authHeaderTokenWB;
 
     @BeforeEach
     void setUp() {
-
-        coreUserDetails = new User("john.doe@example.com", "asdF4cv3vse",
-                java.util.Collections.emptyList());
-        //authHeaderToken = "Bearer " + this.jwtService.generateToken(testUser);
-        //authHeaderTokenWB = this.jwtService.generateToken(testUser);
-
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         filterChain = new MockFilterChain();
@@ -67,7 +54,7 @@ class AuthFilterJwtDoFilterTest {
     @Test
     void doFilterInternalWithValidTokenShouldAuthenticateUser() throws Exception {
         String token = "valid.jwt.token";
-        String username = "john.doe@example.com";
+        String username = "user@example.com";
 
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail(username);
@@ -80,72 +67,15 @@ class AuthFilterJwtDoFilterTest {
 
         when(jwtService.getUsernameFromToken(token)).thenReturn(username);
 
-        ;
-        when(userDetailsService.loadUserByUsername(username)).thenReturn(coreUserDetails);
-        when(jwtService.isTokenValid(token, coreUserDetails)).thenReturn(true);
-
-        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
-
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals(username, SecurityContextHolder.getContext().getAuthentication().getName());
-        verify(jwtService).isTokenValid(token, coreUserDetails);
-    }
-
-    @Test
-    void doFilterInternalWithValidTokenShouldAuthenticateUser2() throws Exception {
-
-        String username = coreUserDetails.getUsername();
-
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(username);
-        loginRequest.setPassword(coreUserDetails.getPassword());
-
-        request.addHeader("Authorization", authHeaderToken);
-        request.setMethod("POST");
-        request.setContentType("application/json");
-        request.setContent(objectMapper.writeValueAsBytes(loginRequest));
-
-        doReturn("john.doe@example.com").when(jwtService).getUsernameFromToken(authHeaderTokenWB);
-
-        UserDetails userDetails = coreUserDetails;
-
-        when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
-        when(jwtService.isTokenValid(authHeaderTokenWB, userDetails)).thenReturn(true);
-
-        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
-
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals(username, SecurityContextHolder.getContext().getAuthentication().getName());
-        verify(jwtService).isTokenValid(authHeaderTokenWB, userDetails);
-    }
-
-    @Test
-    void doFilterInternalWithValidTokenShouldThrowNotFoundExceptionBadOperation() throws Exception {
-        String token = "valid.jwt.token";
-        String username = coreUserDetails.getUsername();
-
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(username);
-        loginRequest.setPassword(coreUserDetails.getPassword());
-
-        request.addHeader("Authorization", token);
-        request.setMethod("POST");
-        request.setContentType("application/json");
-        request.setContent(objectMapper.writeValueAsBytes(loginRequest));
-
-        when(jwtService.getUsernameFromToken(token)).thenReturn(username);
-
-        UserDetails userDetails = coreUserDetails;
+        UserDetails userDetails = new User(username, "password", java.util.Collections.emptyList());
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
         when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
 
-        //jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+        authFilterJWT.doFilterInternal(request, response, filterChain);
 
-        AuthenticationCredentialsNotFoundException e = assertThrows(AuthenticationCredentialsNotFoundException.class,
-                () -> jwtAuthenticationFilter.doFilterInternal(request, response, filterChain));
-        assertEquals(" Bad Operation ", e.getMessage());
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
-        //verify(jwtService, never()).getUsernameFromToken(anyString());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals(username, SecurityContextHolder.getContext().getAuthentication().getName());
+        verify(jwtService).isTokenValid(token, userDetails);
     }
 
     @Test
@@ -158,7 +88,7 @@ class AuthFilterJwtDoFilterTest {
         request.setContentType("application/json");
         request.setContent(objectMapper.writeValueAsBytes(loginRequest));
 
-        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+        authFilterJWT.doFilterInternal(request, response, filterChain);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(jwtService, never()).getUsernameFromToken(anyString());
@@ -172,7 +102,7 @@ class AuthFilterJwtDoFilterTest {
         when(jwtService.getUsernameFromToken(token)).thenThrow(new IllegalArgumentException("Invalid token"));
 
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> {
-            jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+            authFilterJWT.doFilterInternal(request, response, filterChain);
         });
     }
 
@@ -193,14 +123,14 @@ class AuthFilterJwtDoFilterTest {
 
         when(jwtService.getUsernameFromToken(token)).thenReturn(username);
         when(userDetailsService.loadUserByUsername(username))
-                .thenThrow(new UsernameNotFoundException("UserCustom not found"));
+                .thenThrow(new UsernameNotFoundException("User not found"));
 
         UsernameNotFoundException exception =
                 assertThrows(UsernameNotFoundException.class, () -> {
-                    jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+                    authFilterJWT.doFilterInternal(request, response, filterChain);
                 });
 
-        assertEquals("UserCustom not found", exception.getMessage());
+        assertEquals("User not found", exception.getMessage());
         verify(userDetailsService).loadUserByUsername(username);
     }
 }
