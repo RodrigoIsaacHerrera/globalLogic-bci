@@ -47,7 +47,7 @@ public class AuthFilterJWT extends OncePerRequestFilter {
         } catch (Exception e) {
             throw new AuthenticationCredentialsNotFoundException(" Bad Operation ");
         }
-        if (username !=null && SecurityContextHolder.getContext().getAuthentication()==null) {
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -56,6 +56,7 @@ public class AuthFilterJWT extends OncePerRequestFilter {
                             userDetails, null, userDetails.getAuthorities());
 
                     permissionToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(permissionToken);
                 }
             } catch (JwtException e) {
                 throw new JwtException(" Bad Token ");

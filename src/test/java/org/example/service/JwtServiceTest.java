@@ -140,6 +140,18 @@ class JwtServiceTest {
         assertEquals(expected, exception.getMessage());
     }
 
+    @Test
+    public void generateTokenReturnGetToken() {
+        UserCustom userCustom = new UserCustom(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"), "Jane Doe",
+                "jane.doe@example.org", "abc1tG4fd");
+        String expected = "eyJhbGciOiJIUzI1NiJ9.";
+        String actual = jwtService.generateToken(userCustom);
+        boolean contains = actual.contains(expected);
+
+        assertTrue(contains);
+
+    }
+
     static private String getTokenExpired(Map<String, Object> exClaims, UserCustom userCustom) {
 
         String fechaAtrasada = new Date(System.currentTimeMillis() - (1000 * 60 * 60 * 7)).toString();
@@ -159,17 +171,5 @@ class JwtServiceTest {
     static protected Key getKeyExpired() {
         byte[] keyBytes = Decoders.BASE64.decode("586E3272357578982F413F4428472B4B6250655368566B598071733676397924");
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    @Test
-    public void generateTokenReturnGetToken() {
-        UserCustom userCustom = new UserCustom(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"), "Jane Doe",
-                "jane.doe@example.org", "abc1tG4fd");
-        String expected = "eyJhbGciOiJIUzI1NiJ9.";
-        String actual = jwtService.generateToken(userCustom);
-        boolean contains = actual.contains(expected);
-
-        assertTrue(contains);
-
     }
 }
