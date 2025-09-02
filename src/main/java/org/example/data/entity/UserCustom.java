@@ -16,7 +16,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "users", schema = "myapp")
-public class User implements UserDetails {
+public class UserCustom implements UserDetails {
 
     @Id
     @Column(name = "id", updatable = false, nullable = false)
@@ -31,9 +31,9 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    public User() {}
+    public UserCustom() {}
 
-    public User(UUID id, String name, String email, String password) {
+    public UserCustom(UUID id, String name, String email, String password) {
         this.id = id;
         this.name = name;
         this.email = email;

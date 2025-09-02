@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.example.data.entity.Phone;
-import org.example.data.entity.User;
+import org.example.data.entity.UserCustom;
 import org.example.data.mappers.UserMapper;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
@@ -68,15 +68,15 @@ class AuthServiceTest {
     @DisplayName("Test signUp(SignUpRequest)")
     void testSignUp() throws DuplicateKeyException {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenThrow(new DuplicateKeyException("Msg"));
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
-        when(usersRepository.save(Mockito.<User>any())).thenReturn(user);
+        when(usersRepository.save(Mockito.<UserCustom>any())).thenReturn(userCustom);
 
         SignUpRequest registerRequest = new SignUpRequest();
         registerRequest.setPhones(new ArrayList<>());
@@ -85,14 +85,14 @@ class AuthServiceTest {
         assertThrows(DuplicateKeyException.class, () -> authService.signUp(registerRequest));
         verify(usersRepository).existsById(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase(null);
-        verify(usersRepository).save(isA(User.class));
+        verify(usersRepository).save(isA(UserCustom.class));
     }
 
     /**
      * Test {@link AuthService#signUp(SignUpRequest)}.
      *
      * <ul>
-     *   <li>Given {@link JwtService} {@link JwtService#generateToken(User)} throw {@link
+     *   <li>Given {@link JwtService} {@link JwtService#generateToken(UserCustom)} throw {@link
      *       DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
@@ -100,44 +100,44 @@ class AuthServiceTest {
      */
     @Test
     @DisplayName(
-            "Test signUp(SignUpRequest); given JwtService generateToken(User) throw DuplicateKeyException(String) with 'Msg'")
+            "Test signUp(SignUpRequest); given JwtService generateToken(UserCustom) throw DuplicateKeyException(String) with 'Msg'")
     void testSignUp_givenJwtServiceGenerateTokenThrowDuplicateKeyExceptionWithMsg()
             throws DuplicateKeyException {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
 
-        User user2 = new User();
-        user2.setEmail("jane.doe@example.org");
-        user2.setId(UUID.randomUUID());
-        user2.setName("Name");
-        user2.setPassword("iloveyou");
-        Optional<User> ofResult = Optional.of(user2);
+        UserCustom userCustom2 = new UserCustom();
+        userCustom2.setEmail("jane.doe@example.org");
+        userCustom2.setId(UUID.randomUUID());
+        userCustom2.setName("Name");
+        userCustom2.setPassword("iloveyou");
+        Optional<UserCustom> ofResult = Optional.of(userCustom2);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
-        when(usersRepository.save(Mockito.<User>any())).thenReturn(user);
-        when(jwtService.generateToken(Mockito.<User>any())).thenThrow(new DuplicateKeyException("Msg"));
+        when(usersRepository.save(Mockito.<UserCustom>any())).thenReturn(userCustom);
+        when(jwtService.generateToken(Mockito.<UserCustom>any())).thenThrow(new DuplicateKeyException("Msg"));
 
         SignUpRequest registerRequest = new SignUpRequest();
         registerRequest.setPhones(new ArrayList<>());
 
         // Act and Assert
         assertThrows(RuntimeException.class, () -> authService.signUp(registerRequest));
-        verify(jwtService).generateToken(isA(User.class));
+        verify(jwtService).generateToken(isA(UserCustom.class));
         verify(usersRepository).existsById(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase(null);
-        verify(usersRepository).save(isA(User.class));
+        verify(usersRepository).save(isA(UserCustom.class));
     }
 
     /**
      * Test {@link AuthService#signUp(SignUpRequest)}.
      *
      * <ul>
-     *   <li>Given of {@link User}.
+     *   <li>Given of {@link UserCustom}.
      *   <li>When {@link SignUpRequest#SignUpRequest()} Phones is {@link ArrayList#ArrayList()}.
      *   <li>Then calls {@link PhonesRepository#save(Object)}.
      * </ul>
@@ -146,27 +146,27 @@ class AuthServiceTest {
      */
     @Test
     @DisplayName(
-            "Test signUp(SignUpRequest); given of User; when SignUpRequest() Phones is ArrayList(); then calls save(Object)")
+            "Test signUp(SignUpRequest); given of UserCustom; when SignUpRequest() Phones is ArrayList(); then calls save(Object)")
     void testSignUp_givenOfUser_whenSignUpRequestPhonesIsArrayList_thenCallsSave()
             throws DuplicateKeyException {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
-        when(usersRepository.save(Mockito.<User>any())).thenReturn(user);
-        User user2 = mock(User.class);
-        doNothing().when(user2).setEmail(Mockito.<String>any());
-        doNothing().when(user2).setId(Mockito.<UUID>any());
-        doNothing().when(user2).setName(Mockito.<String>any());
-        doNothing().when(user2).setPassword(Mockito.<String>any());
-        user2.setEmail("jane.doe@example.org");
-        user2.setId(UUID.randomUUID());
-        user2.setName("Name");
-        user2.setPassword("iloveyou");
-        Optional.of(user2);
+        when(usersRepository.save(Mockito.<UserCustom>any())).thenReturn(userCustom);
+        UserCustom userCustom2 = mock(UserCustom.class);
+        doNothing().when(userCustom2).setEmail(Mockito.<String>any());
+        doNothing().when(userCustom2).setId(Mockito.<UUID>any());
+        doNothing().when(userCustom2).setName(Mockito.<String>any());
+        doNothing().when(userCustom2).setPassword(Mockito.<String>any());
+        userCustom2.setEmail("jane.doe@example.org");
+        userCustom2.setId(UUID.randomUUID());
+        userCustom2.setName("Name");
+        userCustom2.setPassword("iloveyou");
+        Optional.of(userCustom2);
         when(phonesRepository.save(Mockito.<Phone>any())).thenThrow(new DuplicateKeyException("Msg"));
 
         Phone phone = new Phone();
@@ -184,13 +184,13 @@ class AuthServiceTest {
 
         // Act and Assert
         assertThrows(DuplicateKeyException.class, () -> authService.signUp(registerRequest));
-        verify(user2).setEmail("jane.doe@example.org");
-        verify(user2).setId(isA(UUID.class));
-        verify(user2).setName("Name");
-        verify(user2).setPassword("iloveyou");
+        verify(userCustom2).setEmail("jane.doe@example.org");
+        verify(userCustom2).setId(isA(UUID.class));
+        verify(userCustom2).setName("Name");
+        verify(userCustom2).setPassword("iloveyou");
         verify(usersRepository).existsById(isA(UUID.class));
         verify(phonesRepository).save(isA(Phone.class));
-        verify(usersRepository).save(isA(User.class));
+        verify(usersRepository).save(isA(UserCustom.class));
     }
 
     /**
@@ -199,7 +199,7 @@ class AuthServiceTest {
      * <ul>
      *   <li>Given {@link PhonesRepository} {@link PhonesRepository#save(Object)} return {@link
      *       Phone#Phone()}.
-     *   <li>Then calls {@link User#getId()}.
+     *   <li>Then calls {@link UserCustom#getId()}.
      * </ul>
      *
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
@@ -210,27 +210,27 @@ class AuthServiceTest {
     void testSignUp_givenPhonesRepositorySaveReturnPhone_thenCallsGetId()
             throws DuplicateKeyException {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
-        User user2 = mock(User.class);
-        when(user2.getName()).thenThrow(new DuplicateKeyException("Msg"));
-        when(user2.getId()).thenReturn(UUID.randomUUID());
-        doNothing().when(user2).setEmail(Mockito.<String>any());
-        doNothing().when(user2).setId(Mockito.<UUID>any());
-        doNothing().when(user2).setName(Mockito.<String>any());
-        doNothing().when(user2).setPassword(Mockito.<String>any());
-        user2.setEmail("jane.doe@example.org");
-        user2.setId(UUID.randomUUID());
-        user2.setName("Name");
-        user2.setPassword("iloveyou");
-        Optional<User> ofResult = Optional.of(user2);
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
+        UserCustom userCustom2 = mock(UserCustom.class);
+        when(userCustom2.getName()).thenThrow(new DuplicateKeyException("Msg"));
+        when(userCustom2.getId()).thenReturn(UUID.randomUUID());
+        doNothing().when(userCustom2).setEmail(Mockito.<String>any());
+        doNothing().when(userCustom2).setId(Mockito.<UUID>any());
+        doNothing().when(userCustom2).setName(Mockito.<String>any());
+        doNothing().when(userCustom2).setPassword(Mockito.<String>any());
+        userCustom2.setEmail("jane.doe@example.org");
+        userCustom2.setId(UUID.randomUUID());
+        userCustom2.setName("Name");
+        userCustom2.setPassword("iloveyou");
+        Optional<UserCustom> ofResult = Optional.of(userCustom2);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
-        when(usersRepository.save(Mockito.<User>any())).thenReturn(user);
+        when(usersRepository.save(Mockito.<UserCustom>any())).thenReturn(userCustom);
 
         Phone phone = new Phone();
         phone.setCitycode(1);
@@ -239,7 +239,7 @@ class AuthServiceTest {
         phone.setNumber(1L);
         phone.setUserId(UUID.randomUUID());
         when(phonesRepository.save(Mockito.<Phone>any())).thenReturn(phone);
-        when(jwtService.generateToken(Mockito.<User>any())).thenReturn("ABC123");
+        when(jwtService.generateToken(Mockito.<UserCustom>any())).thenReturn("ABC123");
 
         Phone phone2 = new Phone();
         phone2.setCitycode(1);
@@ -256,72 +256,72 @@ class AuthServiceTest {
 
         // Act and Assert
         assertThrows(RuntimeException.class, () -> authService.signUp(registerRequest));
-        verify(jwtService).generateToken(isA(User.class));
-        verify(user2).getId();
-        verify(user2).getName();
-        verify(user2).setEmail("jane.doe@example.org");
-        verify(user2).setId(isA(UUID.class));
-        verify(user2).setName("Name");
-        verify(user2).setPassword("iloveyou");
+        verify(jwtService).generateToken(isA(UserCustom.class));
+        verify(userCustom2).getId();
+        verify(userCustom2).getName();
+        verify(userCustom2).setEmail("jane.doe@example.org");
+        verify(userCustom2).setId(isA(UUID.class));
+        verify(userCustom2).setName("Name");
+        verify(userCustom2).setPassword("iloveyou");
         verify(usersRepository).existsById(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase(null);
         verify(phonesRepository).save(isA(Phone.class));
-        verify(usersRepository).save(isA(User.class));
+        verify(usersRepository).save(isA(UserCustom.class));
     }
 
     /**
      * Test {@link AuthService#signUp(SignUpRequest)}.
      *
      * <ul>
-     *   <li>Given {@link User} {@link User#getId()} return randomUUID.
-     *   <li>Then calls {@link User#getId()}.
+     *   <li>Given {@link UserCustom} {@link UserCustom#getId()} return randomUUID.
+     *   <li>Then calls {@link UserCustom#getId()}.
      * </ul>
      *
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
     @DisplayName(
-            "Test signUp(SignUpRequest); given User getId() return randomUUID; then calls getId()")
+            "Test signUp(SignUpRequest); given UserCustom getId() return randomUUID; then calls getId()")
     void testSignUp_givenUserGetIdReturnRandomUUID_thenCallsGetId() throws DuplicateKeyException {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
-        User user2 = mock(User.class);
-        when(user2.getName()).thenThrow(new DuplicateKeyException("Msg"));
-        when(user2.getId()).thenReturn(UUID.randomUUID());
-        doNothing().when(user2).setEmail(Mockito.<String>any());
-        doNothing().when(user2).setId(Mockito.<UUID>any());
-        doNothing().when(user2).setName(Mockito.<String>any());
-        doNothing().when(user2).setPassword(Mockito.<String>any());
-        user2.setEmail("jane.doe@example.org");
-        user2.setId(UUID.randomUUID());
-        user2.setName("Name");
-        user2.setPassword("iloveyou");
-        Optional<User> ofResult = Optional.of(user2);
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
+        UserCustom userCustom2 = mock(UserCustom.class);
+        when(userCustom2.getName()).thenThrow(new DuplicateKeyException("Msg"));
+        when(userCustom2.getId()).thenReturn(UUID.randomUUID());
+        doNothing().when(userCustom2).setEmail(Mockito.<String>any());
+        doNothing().when(userCustom2).setId(Mockito.<UUID>any());
+        doNothing().when(userCustom2).setName(Mockito.<String>any());
+        doNothing().when(userCustom2).setPassword(Mockito.<String>any());
+        userCustom2.setEmail("jane.doe@example.org");
+        userCustom2.setId(UUID.randomUUID());
+        userCustom2.setName("Name");
+        userCustom2.setPassword("iloveyou");
+        Optional<UserCustom> ofResult = Optional.of(userCustom2);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
-        when(usersRepository.save(Mockito.<User>any())).thenReturn(user);
-        when(jwtService.generateToken(Mockito.<User>any())).thenReturn("ABC123");
+        when(usersRepository.save(Mockito.<UserCustom>any())).thenReturn(userCustom);
+        when(jwtService.generateToken(Mockito.<UserCustom>any())).thenReturn("ABC123");
 
         SignUpRequest registerRequest = new SignUpRequest();
         registerRequest.setPhones(new ArrayList<>());
 
         // Act and Assert
         assertThrows(RuntimeException.class, () -> authService.signUp(registerRequest));
-        verify(jwtService).generateToken(isA(User.class));
-        verify(user2).getId();
-        verify(user2).getName();
-        verify(user2).setEmail("jane.doe@example.org");
-        verify(user2).setId(isA(UUID.class));
-        verify(user2).setName("Name");
-        verify(user2).setPassword("iloveyou");
+        verify(jwtService).generateToken(isA(UserCustom.class));
+        verify(userCustom2).getId();
+        verify(userCustom2).getName();
+        verify(userCustom2).setEmail("jane.doe@example.org");
+        verify(userCustom2).setId(isA(UUID.class));
+        verify(userCustom2).setName("Name");
+        verify(userCustom2).setPassword("iloveyou");
         verify(usersRepository).existsById(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase(null);
-        verify(usersRepository).save(isA(User.class));
+        verify(usersRepository).save(isA(UserCustom.class));
     }
 
     /**
@@ -386,23 +386,23 @@ class AuthServiceTest {
     @DisplayName("Test signUp(SignUpRequest); then return Token is 'ABC123'")
     void testSignUp_thenReturnTokenIsAbc123() throws DuplicateKeyException {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
 
-        User user2 = new User();
-        user2.setEmail("jane.doe@example.org");
-        user2.setId(UUID.randomUUID());
-        user2.setName("Name");
-        user2.setPassword("iloveyou");
-        Optional<User> ofResult = Optional.of(user2);
+        UserCustom userCustom2 = new UserCustom();
+        userCustom2.setEmail("jane.doe@example.org");
+        userCustom2.setId(UUID.randomUUID());
+        userCustom2.setName("Name");
+        userCustom2.setPassword("iloveyou");
+        Optional<UserCustom> ofResult = Optional.of(userCustom2);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
-        when(usersRepository.save(Mockito.<User>any())).thenReturn(user);
-        when(jwtService.generateToken(Mockito.<User>any())).thenReturn("ABC123");
+        when(usersRepository.save(Mockito.<UserCustom>any())).thenReturn(userCustom);
+        when(jwtService.generateToken(Mockito.<UserCustom>any())).thenReturn("ABC123");
 
         SignUpRequest registerRequest = new SignUpRequest();
         registerRequest.setPhones(new ArrayList<>());
@@ -411,10 +411,10 @@ class AuthServiceTest {
         SignUpResponse actualSignUpResult = authService.signUp(registerRequest);
 
         // Assert
-        verify(jwtService).generateToken(isA(User.class));
+        verify(jwtService).generateToken(isA(UserCustom.class));
         verify(usersRepository).existsById(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase(null);
-        verify(usersRepository).save(isA(User.class));
+        verify(usersRepository).save(isA(UserCustom.class));
         assertEquals("ABC123", actualSignUpResult.getToken());
         UserMapper user3 = actualSignUpResult.getUser();
         assertEquals("Name", user3.getName());
@@ -466,7 +466,7 @@ class AuthServiceTest {
      * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
-     *   <li>Given {@link JwtService} {@link JwtService#generateToken(User)} throw {@link
+     *   <li>Given {@link JwtService} {@link JwtService#generateToken(UserCustom)} throw {@link
      *       DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
      * </ul>
      *
@@ -474,22 +474,22 @@ class AuthServiceTest {
      */
     @Test
     @DisplayName(
-            "Test login(LoginRequest, authHeader); given JwtService generateToken(User)" +
+            "Test login(LoginRequest, authHeader); given JwtService generateToken(UserCustom)" +
                     " throw DuplicateKeyException(String) with 'Msg'")
     public void testLogin_givenJwtServiceGenerateTokenThrowNullPointerException() {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"));
-        user.setName("Name");
-        user.setPassword("iloveyou");
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"));
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
 
-        Optional<User> ofResult = Optional.of(user);
+        Optional<UserCustom> ofResult = Optional.of(userCustom);
         when(usersRepository.findByEmailContainingIgnoreCase("jane.doe@example.org"))
                 .thenReturn(ofResult);
         when(phonesRepository.findAllByUserId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1")))
                 .thenReturn(new ArrayList<>());
-        when(jwtService.generateToken(user)).thenThrow(new NullPointerException());
+        when(jwtService.generateToken(userCustom)).thenThrow(new NullPointerException());
         when(jwtService.getIdFromToken("")).thenReturn("ef199728-21aa-4a3c-a846-66202c1866c1");
 
         // Act and Assert
@@ -518,12 +518,12 @@ class AuthServiceTest {
                     "throw DuplicateKeyException(String) with 'Msg'")
     public void testLogin_givenPhonesRepositoryFindAllByUserIdThrowDuplicateKeyExceptionWithMsg() {
         // Arrange
-        User user = new User();
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"));
-        user.setName("Name");
-        user.setPassword("iloveyou");
-        Optional<User> ofResult = Optional.of(user);
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"));
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
+        Optional<UserCustom> ofResult = Optional.of(userCustom);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(phonesRepository.findAllByUserId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1")))
@@ -540,35 +540,35 @@ class AuthServiceTest {
      * Test {@link AuthService#login(LoginRequest, String)}.
      *
      * <ul>
-     *   <li>Given {@link User} {@link User#getId()} return randomUUID.
-     *   <li>Then calls {@link User#getId()}.
+     *   <li>Given {@link UserCustom} {@link UserCustom#getId()} return randomUUID.
+     *   <li>Then calls {@link UserCustom#getId()}.
      * </ul>
      *
      * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
-    @DisplayName("Test login(LoginRequest); given User getId() return randomUUID; then calls getId()")
+    @DisplayName("Test login(LoginRequest); given UserCustom getId() return randomUUID; then calls getId()")
     void testLogin_givenUserGetIdReturnRandomUUID_thenCallsGetId() {
         // Arrange
-        User user = mock(User.class);
-        when(user.getName()).thenThrow(new DuplicateKeyException("Msg"));
-        user.setEmail("jane.doe@example.org");
-        user.setId(UUID.randomUUID());
-        user.setName("Name");
-        user.setPassword("iloveyou");
-        String token = jwtService.generateToken(user);
-        Optional<User> ofResult = Optional.of(user);
+        UserCustom userCustom = mock(UserCustom.class);
+        when(userCustom.getName()).thenThrow(new DuplicateKeyException("Msg"));
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
+        String token = jwtService.generateToken(userCustom);
+        Optional<UserCustom> ofResult = Optional.of(userCustom);
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(phonesRepository.findAllByUserId(Mockito.<UUID>any())).thenReturn(new ArrayList<>());
-        when(jwtService.generateToken(Mockito.<User>any())).thenReturn(token);
+        when(jwtService.generateToken(Mockito.<UserCustom>any())).thenReturn(token);
 
         // Act and Assert
         assertThrows(
                 RuntimeException.class,
                 () -> authService.login(new LoginRequest(Mockito.any(), Mockito.any()),
                         "Bearer " + token));
-        verify(jwtService).generateToken(isA(User.class));
+        verify(jwtService).generateToken(isA(UserCustom.class));
 
     }
 
@@ -588,7 +588,7 @@ class AuthServiceTest {
                     "return empty")
     void testLogin_givenUsersRepositoryFindByEmailContainingIgnoreCaseReturnEmpty() {
         // Arrange
-        Optional<User> emptyResult = Optional.empty();
+        Optional<UserCustom> emptyResult = Optional.empty();
         when(usersRepository.findByEmailContainingIgnoreCase("jane.doe@example.org"))
                 .thenReturn(emptyResult);
 

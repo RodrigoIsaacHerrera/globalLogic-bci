@@ -20,19 +20,19 @@ public class PhoneJsonTest {
     @Autowired
     private JacksonTester<Phone> json;
 
-    private User user;
+    private UserCustom userCustom;
 
     @BeforeEach
     void setUp() {
         UUID uuid = UUID.randomUUID();
-        user = new User(uuid,"Carlos Ruiz","carlos@example.com","pass123");
+        userCustom = new UserCustom(uuid,"Carlos Ruiz","carlos@example.com","pass123");
     }
 
     @Test
     void testSerializacionToJson() throws Exception {
 
         Resource resource = new ClassPathResource("JsonInputPhone/expectedPhone.json");
-        Phone phone = new Phone(user.getId(),87650009L,  7,  "25");
+        Phone phone = new Phone(userCustom.getId(),87650009L,  7,  "25");
         phone.setId(1L);
 
         assertThat(json.write(phone)).isEqualToJson(resource.getFile());
@@ -49,7 +49,7 @@ public class PhoneJsonTest {
     @Test
     void phoneSerializationTest() throws IOException {
         Resource resource = new ClassPathResource("JsonInputPhone/expectedPhone.json");
-        Phone phone = new Phone(user.getId(),96650009L,  7,  "25");
+        Phone phone = new Phone(userCustom.getId(),96650009L,  7,  "25");
         phone.setId(1L);
         assertThat(json.write(phone)).isNotEqualToJson(resource.getFile());
         assertThat(json.write(phone)).hasJsonPathNumberValue("@.id");
@@ -60,7 +60,7 @@ public class PhoneJsonTest {
     @Test
     void phoneSerializationStrictTest() throws IOException {
         Resource resource = new ClassPathResource("JsonInputPhone/expectedPhone.json");
-        Phone phone = new Phone(user.getId(),null,  null,  null);
+        Phone phone = new Phone(userCustom.getId(),null,  null,  null);
         phone.setId(1L);
 
         assertThat(json.write(phone)).isNotEqualToJson(resource.getFile());

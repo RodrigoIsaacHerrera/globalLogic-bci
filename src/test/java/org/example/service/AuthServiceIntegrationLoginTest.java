@@ -1,7 +1,7 @@
 package org.example.service;
 
 import org.example.data.entity.Phone;
-import org.example.data.entity.User;
+import org.example.data.entity.UserCustom;
 import org.example.data.mappers.PhoneMapper;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +48,7 @@ class AuthServiceIntegrationLoginTest {
     @SpyBean
     private AuthService spyAuthService;
 
-    private User testUser;
+    private UserCustom testUserCustom;
 
     private String authHeader;
     private String authHeaderWB;
@@ -61,16 +60,16 @@ class AuthServiceIntegrationLoginTest {
         usersRepository.deleteAll();
 
         // Crear y guardar usuario de prueba
-        testUser = new User();
-        testUser.setId(UUID.fromString("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"));
-        testUser.setName("John Doe");
-        testUser.setEmail("john.doe@example.com");
-        testUser.setPassword(passwordEncoder.encode("asdF4cv3vse"));
+        testUserCustom = new UserCustom();
+        testUserCustom.setId(UUID.fromString("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"));
+        testUserCustom.setName("John Doe");
+        testUserCustom.setEmail("john.doe@example.com");
+        testUserCustom.setPassword(passwordEncoder.encode("asdF4cv3vse"));
 
-        testUser = usersRepository.save(testUser);
+        testUserCustom = usersRepository.save(testUserCustom);
 
-        authHeader = "Bearer " + this.jwtService.generateToken(testUser);
-        authHeaderWB = this.jwtService.generateToken(testUser);
+        authHeader = "Bearer " + this.jwtService.generateToken(testUserCustom);
+        authHeaderWB = this.jwtService.generateToken(testUserCustom);
 
 
         // Guardar teléfono asociado
@@ -78,7 +77,7 @@ class AuthServiceIntegrationLoginTest {
         phone.setNumber(1234567L);
         phone.setCitycode(1);
         phone.setCountrycode("57");
-        phone.setUserId(testUser.getId());
+        phone.setUserId(testUserCustom.getId());
 
         phonesRepository.save(phone);
     }
