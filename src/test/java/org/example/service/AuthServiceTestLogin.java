@@ -1,7 +1,7 @@
 package org.example.service;
 
 import org.example.data.entity.Phone;
-import org.example.data.entity.User;
+import org.example.data.entity.UserCustom;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
 import org.example.shared.enums.RolePermissions;
@@ -56,9 +56,9 @@ public class AuthServiceTestLogin {
 
 
     private UUID uuidMock;
-    private User user;
+    private UserCustom userCustom;
     private UsernamePasswordAuthenticationToken thingWithUsePass;
-    private Optional<User> resultOf;
+    private Optional<UserCustom> resultOf;
     private String authHeader;
     private Phone phone;
     private List<Phone> phones;
@@ -68,13 +68,13 @@ public class AuthServiceTestLogin {
     public void setup(){
         loginRequest = new LoginRequest("john.doe@example.com", "correctPassword");
         uuidMock = UUID.fromString("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
-        user = new User();
-        user.setEmail("john.doe@example.com");
-        user.setId(uuidMock);
-        user.setName("John Doe");
-        user.setPassword("asdF4cv3vse");
-        resultOf = Optional.of(user);
-        authHeader = "Bearer " + this.jwtService.generateToken(user);
+        userCustom = new UserCustom();
+        userCustom.setEmail("john.doe@example.com");
+        userCustom.setId(uuidMock);
+        userCustom.setName("John Doe");
+        userCustom.setPassword("asdF4cv3vse");
+        resultOf = Optional.of(userCustom);
+        authHeader = "Bearer " + this.jwtService.generateToken(userCustom);
 
         thingWithUsePass = new UsernamePasswordAuthenticationToken(
                 "john.doe@example.com",
@@ -109,7 +109,7 @@ public class AuthServiceTestLogin {
         when(usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()))
                 .thenReturn(resultOf);
 
-        when(phonesRepository.findAllByUserId(user.getId())).thenReturn(Collections.singletonList(phones));
+        when(phonesRepository.findAllByUserId(userCustom.getId())).thenReturn(Collections.singletonList(phones));
 
         String expected = "Bad Token, Null Item";
         // Act & Assert
@@ -122,7 +122,7 @@ public class AuthServiceTestLogin {
     void testLogin_InvalidToken_ThrowsAuthenticationException() throws Exception {
         // Given
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("user@example.com");
+        loginRequest.setEmail("userCustom@example.com");
         loginRequest.setPassword("password123");
 
         String authHeader = "Bearer invalid-token";

@@ -4,7 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import org.example.data.entity.User;
+import org.example.data.entity.UserCustom;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +19,22 @@ public class JwtService {
     //this is a bad practice, only for this time I use.
     final String secret = "586E3272357578982F413F4428472B4B6250655368566B598071733676397924";
 
-    public String generateToken(User user) {
+    public String generateToken(UserCustom userCustom) {
 
-        return getToken(new HashMap<>(), user);
+        return getToken(new HashMap<>(), userCustom);
     }
 
-    String getToken(Map<String, Object> exClaims, User user) {
+    String getToken(Map<String, Object> exClaims, UserCustom userCustom) {
         String dateOrigin = new Date(System.currentTimeMillis()).toString();
 
         exClaims.put("isActive", true);
         exClaims.put("lastLogin", dateOrigin);
         exClaims.put("created", dateOrigin);
-        exClaims.put("Id", user.getId().toString());
+        exClaims.put("Id", userCustom.getId().toString());
 
         return Jwts.builder()
                 .setClaims(exClaims)
-                .setSubject(user.getEmail())
+                .setSubject(userCustom.getEmail())
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
                 .signWith(getKey(),SignatureAlgorithm.HS256).compact();
     }

@@ -1,22 +1,19 @@
 package org.example.service;
 
-import lombok.NoArgsConstructor;
+import org.example.data.entity.UserCustom;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
 import org.example.data.entity.Phone;
-import org.example.data.entity.User;
 import org.example.data.mappers.PhoneMapper;
 import org.example.data.mappers.UserMapper;
 import org.example.data.repository.PhonesRepository;
 import org.example.data.repository.UsersRepository;
 import org.example.web.reponse.LoginResponse;
 import org.example.web.reponse.SignUpResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,14 +45,14 @@ public class AuthService {
     public SignUpResponse signUp(SignUpRequest registerRequest) throws DuplicateKeyException {
 
         UUID userId = UUID.randomUUID();
-        User signUser = new User();
-        signUser.setId(userId);
-        signUser.setName(registerRequest.getName());
-        signUser.setEmail(registerRequest.getEmail());
-        signUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        UserCustom signUserCustom = new UserCustom();
+        signUserCustom.setId(userId);
+        signUserCustom.setName(registerRequest.getName());
+        signUserCustom.setEmail(registerRequest.getEmail());
+        signUserCustom.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         if (!usersRepository.existsById(userId)) {
-            usersRepository.save(signUser);
-            signUser.setPassword(registerRequest.getPassword());
+            usersRepository.save(signUserCustom);
+            signUserCustom.setPassword(registerRequest.getPassword());
         } else {
             throw new DuplicateKeyException(" Operation Fail. DB reject operation");
         }
@@ -65,7 +62,7 @@ public class AuthService {
             );
         }
         return assemblerObjectSignUp(usersRepository
-                        .findByEmailContainingIgnoreCase(signUser.getEmail()).orElseThrow(),
+                        .findByEmailContainingIgnoreCase(signUserCustom.getEmail()).orElseThrow(),
                 registerRequest.getPhones());
     }
 
@@ -77,9 +74,9 @@ public class AuthService {
             if (verification) {
                 authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                         loginRequest.getPassword()));
-                User user = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
-                phonesRepository.findAllByUserId(user.getId()).forEach(phone -> phones.add((Phone) phone));
-                loginResponse = assemblerObjectLogin(user, phones);
+                UserCustom userCustom = usersRepository.findByEmailContainingIgnoreCase(loginRequest.getEmail()).orElseThrow();
+                phonesRepository.findAllByUserId(userCustom.getId()).forEach(phone -> phones.add((Phone) phone));
+                loginResponse = assemblerObjectLogin(userCustom, phones);
             } else {
                 throw new AuthenticationCredentialsNotFoundException("Bad Token");
             }
@@ -94,39 +91,39 @@ public class AuthService {
         return loginResponse;
     }
 
-    private SignUpResponse assemblerObjectSignUp(User userR, List<Phone> phones) {
+    private SignUpResponse assemblerObjectSignUp(UserCustom userCustomR, List<Phone> phones) {
         String token;
         UserMapper userMapper;
         try {
-            token = jwtService.generateToken(userR);
-            userMapper = userMapperMethod(userR, phones);
-            userMapper.setPassword(userR.getPassword()); // encriptada
+            token = jwtService.generateToken(userCustomR);
+            userMapper = userMapperMethod(userCustomR, phones);
+            userMapper.setPassword(userCustomR.getPassword()); // encriptada
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return new SignUpResponse(userMapper, userR.getId().toString(),
+        return new SignUpResponse(userMapper, userCustomR.getId().toString(),
                 new Date(System.currentTimeMillis()).toString(), new Date(System.currentTimeMillis()).toString(),
-                token, userR.isCredentialsNonExpired());
+                token, userCustomR.isCredentialsNonExpired());
     }
 
-    private LoginResponse assemblerObjectLogin(User userL, List<Phone> phones) {
-        String token = jwtService.generateToken(userL);
-        UserMapper user = userMapperMethod(userL, phones);
+    private LoginResponse assemblerObjectLogin(UserCustom userCustomL, List<Phone> phones) {
+        String token = jwtService.generateToken(userCustomL);
+        UserMapper user = userMapperMethod(userCustomL, phones);
         //user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
         return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),
                 new Date(System.currentTimeMillis()).toString(),
                 token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());
     }
 
-    private UserMapper userMapperMethod(User userM, List<Phone> phones) {
+    private UserMapper userMapperMethod(UserCustom userCustomM, List<Phone> phones) {
 
         UserMapper user;
         List<PhoneMapper> phoneMappers = new ArrayList<>();
         try {
             phones.forEach(phone ->
                     phoneMappers.add(new PhoneMapper(phone.getNumber(), phone.getCitycode(), phone.getCountrycode())));
-            user = UserMapper.builder().id(userM.getId().toString()).name(userM.getName()).email(userM.getEmail())
-                    .password(userM.getPassword())
+            user = UserMapper.builder().id(userCustomM.getId().toString()).name(userCustomM.getName()).email(userCustomM.getEmail())
+                    .password(userCustomM.getPassword())
                     .phones(phoneMappers).build();
         } catch (Exception e) {
             throw new RuntimeException(e);
