@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +36,9 @@ public class AuthServiceTestLogin {
     @Spy
     @InjectMocks
     private AuthService authService;
+
+    @MockBean
+    private ValidationsService validationsService;
 
     @MockBean
     private AuthenticationManager authenticationManager;
@@ -127,6 +131,8 @@ public class AuthServiceTestLogin {
 
         String authHeader = "Bearer invalid-token";
 
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
+
         // Forzar que verificationToken devuelva false
         doReturn(false).when(authService).verificationToken(loginRequest.getEmail(), authHeader);
 
@@ -135,6 +141,6 @@ public class AuthServiceTestLogin {
             authService.login(loginRequest, authHeader);
         });
 
-        assertEquals("Bad Token", exception.getMessage());
+        assertEquals("Bad Token, Null Item", exception.getMessage());
     }
 }

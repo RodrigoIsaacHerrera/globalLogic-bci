@@ -27,14 +27,16 @@ import java.util.*;
 public class AuthService {
 
 
+    private final ValidationsService validationsService;
     private final PasswordEncoder passwordEncoder;
     private final UsersRepository usersRepository;
     private final PhonesRepository phonesRepository;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
 
-    public AuthService(PasswordEncoder passwordEncoder, UsersRepository usersRepository, PhonesRepository phonesRepository,
+    public AuthService(ValidationsService validationsService, PasswordEncoder passwordEncoder, UsersRepository usersRepository, PhonesRepository phonesRepository,
                        AuthenticationManager authManager, JwtService jwtService) {
+        this.validationsService = validationsService;
         this.passwordEncoder = passwordEncoder;
         this.usersRepository = usersRepository;
         this.phonesRepository = phonesRepository;
@@ -42,25 +44,35 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public SignUpResponse signUp(SignUpRequest registerRequest) throws DuplicateKeyException {
+    public SignUpResponse signUp(SignUpRequest registerRequest) {
 
         UUID userId = UUID.randomUUID();
         UserCustom signUserCustom = new UserCustom();
-        signUserCustom.setId(userId);
-        signUserCustom.setName(registerRequest.getName());
-        signUserCustom.setEmail(registerRequest.getEmail());
-        signUserCustom.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        if (!usersRepository.existsById(userId)) {
-            usersRepository.save(signUserCustom);
-            signUserCustom.setPassword(registerRequest.getPassword());
-        } else {
-            throw new DuplicateKeyException(" Operation Fail. DB reject operation");
+
+        try {
+            validationParams(registerRequest);
+            signUserCustom.setId(userId);
+            signUserCustom.setName(registerRequest.getName());
+            signUserCustom.setEmail(registerRequest.getEmail());
+            signUserCustom.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            if (!usersRepository.existsById(userId)) {
+                usersRepository.save(signUserCustom);
+                signUserCustom.setPassword(registerRequest.getPassword());
+            } else {
+                throw new DuplicateKeyException(" Operation Fail. DB reject operation");
+            }
+            if (!registerRequest.getPhones().isEmpty()) {
+                registerRequest.getPhones().forEach(phone ->
+                        phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()))
+                );
+            }
+
+        }catch (DuplicateKeyException e){
+            throw new DuplicateKeyException("", e);
+        }catch (IllegalArgumentException e){
+            throw e;
         }
-        if (!registerRequest.getPhones().isEmpty()) {
-            registerRequest.getPhones().forEach(phone ->
-                    phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()))
-            );
-        }
+
         return assemblerObjectSignUp(usersRepository
                         .findByEmailContainingIgnoreCase(signUserCustom.getEmail()).orElseThrow(),
                 registerRequest.getPhones());
@@ -69,8 +81,10 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest, String authHeader){
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
-        boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
+
         try {
+            validationParams(loginRequest);
+            boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
             if (verification) {
                 authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                         loginRequest.getPassword()));
@@ -85,6 +99,8 @@ public class AuthService {
             throw new AuthenticationCredentialsNotFoundException("Bad Token", e);
         } catch (NullPointerException e) {
             throw new NullPointerException("Bad Token, Null Item");
+        } catch (IllegalArgumentException e){
+            throw e;
         }
 
 
@@ -109,7 +125,6 @@ public class AuthService {
     private LoginResponse assemblerObjectLogin(UserCustom userCustomL, List<Phone> phones) {
         String token = jwtService.generateToken(userCustomL);
         UserMapper user = userMapperMethod(userCustomL, phones);
-        //user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
         return new LoginResponse(user.getId(), new Date(System.currentTimeMillis()).toString(),
                 new Date(System.currentTimeMillis()).toString(),
                 token, true, user.getName(), user.getEmail(), user.getPassword(), user.getPhones());
@@ -130,6 +145,23 @@ public class AuthService {
         }
         return user;
     }
+
+    private void validationParams(SignUpRequest registerRequest){
+        String evaluation = this.validationsService.validationParams(registerRequest.getEmail(),
+                registerRequest.getPassword());
+        if (evaluation.contains("false")) {
+            throw new IllegalArgumentException(" " + evaluation);
+        }
+    }
+
+    private void validationParams(LoginRequest loginRequest){
+        String evaluation = this.validationsService.validationParams(loginRequest.getEmail(),
+                loginRequest.getPassword());
+        if (evaluation.contains("false")) {
+            throw new IllegalArgumentException(" " + evaluation);
+        }
+    }
+
 
     protected boolean verificationToken(String emailRequest, String authHeader) {
         String token;

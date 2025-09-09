@@ -1,11 +1,32 @@
-# GLOBAL LOGIC - BCI
-Evaluation Java 11 / Spring 2.5.4 / Gradle 7.4
+# Byte Code Incremental Experimental Login
 
-Run Book
+<h2>RUN BOOK</h2> 
 
-application configuration file (properties):
+<h3>SPECIFICATION:</h3>
 
-# H2 / Hibernate
+<ol>
+<li> 
+<ul> 
+<p> STACK: </p>
+<li>Java 11</li> 
+<li>Spring 2.5.4</li>
+<li>Gradle 7.4</li>
+</ul>
+</li>
+
+<li> 
+<ul><p> System: </p>
+<li>Windows 11</li> 
+<li>Mac OS</li>
+<li>Linux</li>
+</ul>
+</li>
+
+</ol>
+
+<h3> APPLICATION CONFIGURATION FILE (properties): </h3>
+
+<h4># H2 / Hibernate </h4>
 spring.application.name=UserClientGlBci 
 
 server.port=8082 
@@ -22,7 +43,7 @@ spring.h2.console.enabled=true
 
 #spring.datasource.password=
 
-# JPA / Hibernate
+<h4># JPA / Hibernate</h4>
 
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 
@@ -30,26 +51,23 @@ spring.jpa.hibernate.ddl-auto=create-drop
 
 spring.jpa.show-sql=true
 
-# Gradle 
-gradlew bootRun >> RUN API
-ctrl+c over shell terminal used >> STOP API
+<h3>GRADLE COMMANDS:<h3> 
 
-gradlew test >> RUN TESTING and Jacoco Collection Report 
+Take Considerations on Linux shell use ./gradlew
 
-TO SEE Coverage Test Jacoco GO TO "build/reports/jacoco/index.html" file, in project directory open in browser;
-document index.html or testsession.html
+<ol>
+<li>gradlew bootRun >> RUN API</li>
+<li>ctrl + C, over shell terminal used >> STOP API</li>
+<li>gradlew test >> RUN TESTING and Jacoco Collection Report </li>
+<li>TO SEE Coverage Test Jacoco GO TO "build/reports/jacoco/index.html" file, open in browser</li>
+<li>document index.html or testsession.html</li>
+</ol>
 
-# ClIENT API
+<h3># ClIENT API HTTPie </h3>
 
-ON APP open import collection and select 
+- <h4> ON APP open import collection and select: </h4> .../documentation [httpie-collection-httpie-ejercicio-global-logic.json](docs/httpie-collection-httpie-ejercicio-global-logic.json)
 
-../documentation [httpie-collection-httpie-ejercicio-global-logic.json](docs/httpie-collection-httpie-ejercicio-global-logic.json)
-
-httPie
-
-
-
-# DOCUMENTATION
+<h3># DOCUMENTATION</h3>
 root directory / documentation
 
 ../documentation [AuthController_login.png](docs/AuthController_login.png)
