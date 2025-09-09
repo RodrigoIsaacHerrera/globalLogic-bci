@@ -53,9 +53,6 @@ class AuthControllerTest {
     @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
 
-    @MockBean
-    private ValidationsService validationsService;
-
 
     /**
      * Test {@link AuthController#login(LoginRequest, String)}.
@@ -82,8 +79,6 @@ class AuthControllerTest {
                                 "jane.doe@example.org",
                                 "iloveyou",
                                 new ArrayList<>()));
-        when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any()))
-                .thenReturn("Validation Params");
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("jane.doe@example.org");
         loginRequest.setPassword("iloveyou");
@@ -121,7 +116,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
                         .header("Authorization", "Bearer ABC123");
-
+        when(authService.login(Mockito.<LoginRequest>any(), Mockito.<String>any()))
+                .thenThrow(new IllegalArgumentException());
 
         // Act and Assert
         MockMvcBuilders.standaloneSetup(authController)
@@ -159,8 +155,6 @@ class AuthControllerTest {
                 .thenReturn(
                         new SignUpResponse(
                                 user, "42", "Jan 1, 2020 8:00am GMT+0100", "Last Login", "ABC123", true));
-        when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any()))
-                .thenReturn("Validation Params");
 
         SignUpRequest signUpRequest = new SignUpRequest();
         signUpRequest.setEmail("jane.doe@example.org");
@@ -198,6 +192,8 @@ class AuthControllerTest {
         signUpRequest.setPassword("iloveyou");
         signUpRequest.setPhones(new ArrayList<>());
         String content = new ObjectMapper().writeValueAsString(signUpRequest);
+
+        when(authService.signUp(Mockito.<SignUpRequest>any())).thenThrow(new IllegalArgumentException());
 
         MockHttpServletRequestBuilder requestBuilder =
                 MockMvcRequestBuilders.post("/auth/sign-up")

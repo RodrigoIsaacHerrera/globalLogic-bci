@@ -4,10 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -21,7 +18,6 @@ import org.example.data.repository.UsersRepository;
 import org.example.web.reponse.SignUpResponse;
 import org.example.web.request.LoginRequest;
 import org.example.web.request.SignUpRequest;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -45,6 +41,9 @@ class AuthServiceTest {
     private AuthService authService;
 
     @MockBean
+    private ValidationsService validationsService;
+
+    @MockBean
     private AuthenticationManager authenticationManager;
 
     @MockBean
@@ -65,7 +64,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName("Test signUp(SignUpRequest)")
     void testSignUp() throws DuplicateKeyException {
         // Arrange
         UserCustom userCustom = new UserCustom();
@@ -73,6 +71,7 @@ class AuthServiceTest {
         userCustom.setId(UUID.randomUUID());
         userCustom.setName("Name");
         userCustom.setPassword("iloveyou");
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenThrow(new DuplicateKeyException("Msg"));
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
@@ -99,8 +98,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName(
-            "Test signUp(SignUpRequest); given JwtService generateToken(UserCustom) throw DuplicateKeyException(String) with 'Msg'")
     void testSignUp_givenJwtServiceGenerateTokenThrowDuplicateKeyExceptionWithMsg()
             throws DuplicateKeyException {
         // Arrange
@@ -116,6 +113,7 @@ class AuthServiceTest {
         userCustom2.setName("Name");
         userCustom2.setPassword("iloveyou");
         Optional<UserCustom> ofResult = Optional.of(userCustom2);
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
@@ -145,8 +143,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName(
-            "Test signUp(SignUpRequest); given of UserCustom; when SignUpRequest() Phones is ArrayList(); then calls save(Object)")
     void testSignUp_givenOfUser_whenSignUpRequestPhonesIsArrayList_thenCallsSave()
             throws DuplicateKeyException {
         // Arrange
@@ -167,6 +163,7 @@ class AuthServiceTest {
         userCustom2.setName("Name");
         userCustom2.setPassword("iloveyou");
         Optional.of(userCustom2);
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
         when(phonesRepository.save(Mockito.<Phone>any())).thenThrow(new DuplicateKeyException("Msg"));
 
         Phone phone = new Phone();
@@ -205,8 +202,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName(
-            "Test signUp(SignUpRequest); given PhonesRepository save(Object) return Phone(); then calls getId()")
     void testSignUp_givenPhonesRepositorySaveReturnPhone_thenCallsGetId()
             throws DuplicateKeyException {
         // Arrange
@@ -238,6 +233,8 @@ class AuthServiceTest {
         phone.setId(1L);
         phone.setNumber(1L);
         phone.setUserId(UUID.randomUUID());
+
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
         when(phonesRepository.save(Mockito.<Phone>any())).thenReturn(phone);
         when(jwtService.generateToken(Mockito.<UserCustom>any())).thenReturn("ABC123");
 
@@ -280,8 +277,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName(
-            "Test signUp(SignUpRequest); given UserCustom getId() return randomUUID; then calls getId()")
     void testSignUp_givenUserGetIdReturnRandomUUID_thenCallsGetId() throws DuplicateKeyException {
         // Arrange
         UserCustom userCustom = new UserCustom();
@@ -301,6 +296,8 @@ class AuthServiceTest {
         userCustom2.setName("Name");
         userCustom2.setPassword("iloveyou");
         Optional<UserCustom> ofResult = Optional.of(userCustom2);
+
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
@@ -336,11 +333,10 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName(
-            "Test signUp(SignUpRequest); given UsersRepository existsById(UUID) return 'true'; when SignUpRequest()")
     void testSignUp_givenUsersRepositoryExistsByIdReturnTrue_whenSignUpRequest()
             throws DuplicateKeyException {
         // Arrange
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(true);
 
         // Act and Assert
@@ -359,12 +355,10 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName(
-            "Test signUp(SignUpRequest); given UsersRepository existsById(UUID)" +
-                    " throw DuplicateKeyException(String) with 'Msg'")
     void testSignUp_givenUsersRepositoryExistsByIdThrowDuplicateKeyExceptionWithMsg()
             throws DuplicateKeyException {
         // Arrange
+        lenient().when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("true");
         when(usersRepository.existsById(Mockito.<UUID>any()))
                 .thenThrow(new DuplicateKeyException("Msg"));
 
@@ -383,7 +377,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
      */
     @Test
-    @DisplayName("Test signUp(SignUpRequest); then return Token is 'ABC123'")
     void testSignUp_thenReturnTokenIsAbc123() throws DuplicateKeyException {
         // Arrange
         UserCustom userCustom = new UserCustom();
@@ -398,6 +391,8 @@ class AuthServiceTest {
         userCustom2.setName("Name");
         userCustom2.setPassword("iloveyou");
         Optional<UserCustom> ofResult = Optional.of(userCustom2);
+        lenient().when(validationsService.validationParams(Mockito.<String>any(),
+                Mockito.<String>any())).thenReturn("true");
         when(usersRepository.findByEmailContainingIgnoreCase(Mockito.<String>any()))
                 .thenReturn(ofResult);
         when(usersRepository.existsById(Mockito.<UUID>any())).thenReturn(false);
@@ -441,8 +436,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
-    @DisplayName(
-            "Test login(LoginRequest); given ArrayList() add RunAsImplAuthenticationProvider (default constructor)")
     void testLogin_givenArrayListAddRunAsImplAuthenticationProvider() {
         // Arrange
         ArrayList<AuthenticationProvider> providers = new ArrayList<>();
@@ -453,7 +446,7 @@ class AuthServiceTest {
         PhonesRepository phonesRepository = mock(PhonesRepository.class);
         AuthService authService =
                 new AuthService(
-                        passwordEncoder, usersRepository, phonesRepository, authManager, new JwtService());
+                       validationsService, passwordEncoder, usersRepository, phonesRepository, authManager, new JwtService());
 
         // Act and Assert
         assertThrows(
@@ -473,9 +466,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
-    @DisplayName(
-            "Test login(LoginRequest, authHeader); given JwtService generateToken(UserCustom)" +
-                    " throw DuplicateKeyException(String) with 'Msg'")
     public void testLogin_givenJwtServiceGenerateTokenThrowNullPointerException() {
         // Arrange
         UserCustom userCustom = new UserCustom();
@@ -513,9 +503,6 @@ class AuthServiceTest {
      */
     @Test
     @DirtiesContext
-    @DisplayName(
-            "Test login(LoginRequest, AuthHeader); given PhonesRepository findAllByUserId(UUID) " +
-                    "throw DuplicateKeyException(String) with 'Msg'")
     public void testLogin_givenPhonesRepositoryFindAllByUserIdThrowDuplicateKeyExceptionWithMsg() {
         // Arrange
         UserCustom userCustom = new UserCustom();
@@ -547,7 +534,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
-    @DisplayName("Test login(LoginRequest); given UserCustom getId() return randomUUID; then calls getId()")
     void testLogin_givenUserGetIdReturnRandomUUID_thenCallsGetId() {
         // Arrange
         UserCustom userCustom = mock(UserCustom.class);
@@ -583,9 +569,6 @@ class AuthServiceTest {
      * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
      */
     @Test
-    @DisplayName(
-            "Test login(LoginRequest, AuthHeader); given UsersRepository findByEmailContainingIgnoreCase(String) " +
-                    "return empty")
     void testLogin_givenUsersRepositoryFindByEmailContainingIgnoreCaseReturnEmpty() {
         // Arrange
         Optional<UserCustom> emptyResult = Optional.empty();
