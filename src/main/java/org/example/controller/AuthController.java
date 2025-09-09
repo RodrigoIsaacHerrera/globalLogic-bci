@@ -17,28 +17,15 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final ValidationsService validationsService;
 
     @PostMapping(value = "/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, @RequestHeader("Authorization")
                                                String authorizationHeader) {
-        String evaluation = validationsService.validationParams(loginRequest.getEmail(),
-                loginRequest.getPassword());
-        if (evaluation.contains("false")) {
-            throw new IllegalArgumentException(" " + evaluation);
-        }
-        validationsService.validationParams(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.ok(this.authService.login(loginRequest, authorizationHeader));
     }
 
     @PostMapping(value = "/sign-up")
     public ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest registerRequest) {
-        String evaluation = validationsService.validationParams(registerRequest.getEmail(),
-                registerRequest.getPassword());
-        if (evaluation.contains("false")) {
-            throw new IllegalArgumentException(" " + evaluation);
-        }
-
         return ResponseEntity.ok(this.authService.signUp(registerRequest));
     }
 }
