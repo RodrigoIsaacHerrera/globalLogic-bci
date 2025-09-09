@@ -44,26 +44,35 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public SignUpResponse signUp(SignUpRequest registerRequest) throws DuplicateKeyException {
+    public SignUpResponse signUp(SignUpRequest registerRequest) {
 
         UUID userId = UUID.randomUUID();
         UserCustom signUserCustom = new UserCustom();
-        validationParams(registerRequest);
-        signUserCustom.setId(userId);
-        signUserCustom.setName(registerRequest.getName());
-        signUserCustom.setEmail(registerRequest.getEmail());
-        signUserCustom.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        if (!usersRepository.existsById(userId)) {
-            usersRepository.save(signUserCustom);
-            signUserCustom.setPassword(registerRequest.getPassword());
-        } else {
-            throw new DuplicateKeyException(" Operation Fail. DB reject operation");
+
+        try {
+            validationParams(registerRequest);
+            signUserCustom.setId(userId);
+            signUserCustom.setName(registerRequest.getName());
+            signUserCustom.setEmail(registerRequest.getEmail());
+            signUserCustom.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            if (!usersRepository.existsById(userId)) {
+                usersRepository.save(signUserCustom);
+                signUserCustom.setPassword(registerRequest.getPassword());
+            } else {
+                throw new DuplicateKeyException(" Operation Fail. DB reject operation");
+            }
+            if (!registerRequest.getPhones().isEmpty()) {
+                registerRequest.getPhones().forEach(phone ->
+                        phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()))
+                );
+            }
+
+        }catch (DuplicateKeyException e){
+            throw new DuplicateKeyException("", e);
+        }catch (IllegalArgumentException e){
+            throw e;
         }
-        if (!registerRequest.getPhones().isEmpty()) {
-            registerRequest.getPhones().forEach(phone ->
-                    phonesRepository.save(new Phone(userId, phone.getNumber(), phone.getCitycode(), phone.getCountrycode()))
-            );
-        }
+
         return assemblerObjectSignUp(usersRepository
                         .findByEmailContainingIgnoreCase(signUserCustom.getEmail()).orElseThrow(),
                 registerRequest.getPhones());
