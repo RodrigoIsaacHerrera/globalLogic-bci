@@ -81,10 +81,10 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest, String authHeader){
         List<Phone> phones = new ArrayList<>();
         LoginResponse loginResponse;
-        boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
 
         try {
             validationParams(loginRequest);
+            boolean verification = verificationToken(loginRequest.getEmail(), authHeader);
             if (verification) {
                 authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                         loginRequest.getPassword()));

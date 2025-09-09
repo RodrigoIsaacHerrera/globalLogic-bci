@@ -27,6 +27,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.access.intercept.RunAsImplAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -319,6 +320,46 @@ class AuthServiceTest {
         verify(usersRepository).existsById(isA(UUID.class));
         verify(usersRepository).findByEmailContainingIgnoreCase(null);
         verify(usersRepository).save(isA(UserCustom.class));
+    }
+
+    /**
+     * Test {@link AuthService#signUp(SignUpRequest)}.
+     *
+     *
+     * <p>Method under test: {@link AuthService#signUp(SignUpRequest)}
+     */
+    @Test
+    void testSignUp_ThrowIllegalArgumentExceptionWhenValidParamsFalse() throws DuplicateKeyException {
+        // Arrange
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.randomUUID());
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
+        UserCustom userCustom2 = mock(UserCustom.class);
+        when(userCustom2.getName()).thenThrow(new DuplicateKeyException("Msg"));
+        when(userCustom2.getId()).thenReturn(UUID.randomUUID());
+        doNothing().when(userCustom2).setEmail(Mockito.<String>any());
+        doNothing().when(userCustom2).setId(Mockito.<UUID>any());
+        doNothing().when(userCustom2).setName(Mockito.<String>any());
+        doNothing().when(userCustom2).setPassword(Mockito.<String>any());
+        userCustom2.setEmail("jane.doe@example.org");
+        userCustom2.setId(UUID.randomUUID());
+        userCustom2.setName("Name");
+        userCustom2.setPassword("iloveyou");
+        Optional<UserCustom> ofResult = Optional.of(userCustom2);
+
+        when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("false");
+
+        SignUpRequest registerRequest = new SignUpRequest();
+        registerRequest.setEmail(userCustom.getEmail());
+        registerRequest.setPassword(userCustom.getPassword());
+        registerRequest.setName(userCustom.getName());
+        registerRequest.setPhones(new ArrayList<>());
+
+        // Act and Assert
+        assertThrows(IllegalArgumentException.class, () -> authService.signUp(registerRequest));
+
     }
 
     /**
