@@ -347,7 +347,6 @@ class AuthServiceTest {
         userCustom2.setId(UUID.randomUUID());
         userCustom2.setName("Name");
         userCustom2.setPassword("iloveyou");
-        Optional<UserCustom> ofResult = Optional.of(userCustom2);
 
         when(validationsService.validationParams(Mockito.<String>any(), Mockito.<String>any())).thenReturn("false");
 
@@ -561,6 +560,35 @@ class AuthServiceTest {
         assertThrows(
                 RuntimeException.class,
                 () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"), "Bearer "));
+    }
+
+    /**
+     * Test {@link AuthService#login(LoginRequest, String)}.
+     *
+     * <ul>
+     *   <li>Given {@link PhonesRepository} {@link PhonesRepository#findAllByUserId(UUID)} throw
+     *       {@link DuplicateKeyException#DuplicateKeyException(String)} with {@code Msg}.
+     * </ul>
+     *
+     * <p>Method under test: {@link AuthService#login(LoginRequest, String)}
+     */
+    @Test
+    @DirtiesContext
+    public void testLogin_ThrowIllegalArgumentException() {
+        // Arrange
+        UserCustom userCustom = new UserCustom();
+        userCustom.setEmail("jane.doe@example.org");
+        userCustom.setId(UUID.fromString("ef199728-21aa-4a3c-a846-66202c1866c1"));
+        userCustom.setName("Name");
+        userCustom.setPassword("iloveyou");
+        Optional<UserCustom> ofResult = Optional.of(userCustom);
+        when(validationsService.validationParams(Mockito.<String>any(),Mockito.<String>any()))
+                .thenReturn("false");
+
+        // Act and Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> authService.login(new LoginRequest("jane.doe@example.org", "iloveyou"),
+                        "Bearer valid-token"));
     }
 
 
